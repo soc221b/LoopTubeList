@@ -6,6 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "dev:site": "vite",
+    "build:site": "vite build",
+    "build:docs": "vite build",
+    "preview:docs": "npx http-server docs -p 3000",
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch"
@@ -33,6 +37,9 @@
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/user-event": "^14.4.3",
     "identity-obj-proxy": "^3.0.0",
-    "jest-axe": "^4.0.0"
+    "jest-axe": "^4.0.0",
+    "vite": "^5.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "http-server": "^14.1.1"
   }
 }

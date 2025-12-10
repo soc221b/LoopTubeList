@@ -1,0 +1,19 @@
+:root {
+  --bg: #0f172a;
+  --fg: #e6eef8;
+  --accent: #3b82f6;
+}
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  background: var(--bg);
+  color: var(--fg);
+}
+.app {
+  padding: 3rem;
+}
+h1 {
+  margin: 0 0 0.5rem 0;
+  color: var(--accent);
+}
+p { color: #cbd5e1 }
