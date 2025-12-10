@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, act } from '@testing-library/react';
 import PlaylistPlayer from '../../components/PlaylistPlayer';
 
 // Load jest-axe dynamically inside the test. If it's not installed, skip the a11y assertion.
@@ -30,7 +30,11 @@ describe('PlaylistPlayer accessibility', () => {
       PlayerState: { PLAYING: 1, PAUSED: 2 },
     };
 
-    const { container } = render(<PlaylistPlayer playlistId="PLA11Y" />);
+    let container: HTMLElement | undefined;
+    await act(async () => {
+      const r = render(<PlaylistPlayer playlistId="PLA11Y" />);
+      container = r.container;
+    });
     // Try to require jest-axe. If missing, skip the axe assertions.
     let jestAxe: any;
     try {
@@ -42,8 +46,8 @@ describe('PlaylistPlayer accessibility', () => {
     }
 
     const { axe, toHaveNoViolations } = jestAxe;
-    expect.extend(toHaveNoViolations as any);
-    const results = await axe(container);
+    (expect as any).extend(toHaveNoViolations as any);
+    const results = await axe(container as HTMLElement);
     expect(results).toHaveNoViolations();
   });
 });
