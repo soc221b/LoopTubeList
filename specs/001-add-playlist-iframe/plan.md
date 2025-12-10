@@ -166,3 +166,17 @@ This feature must aim for excellent Core Web Vitals and general frontend perform
 	- Add at least one automated CI job (optional) that runs `npx lighthouse-ci` or a Lighthouse script against a deployed preview and gates major regressions.
 
 Following these Web Vitals goals and practices will keep the MVP fast and provide a clear path to monitor and improve performance as the feature grows.
+
+## Playback Failure Detection
+
+This section specifies the recommended detection strategy for embed/playback failures (aligns with `spec.md` edge cases).
+
+- Primary method: use the YouTube IFrame Player API (`https://www.youtube.com/iframe_api`) and create a Player instance for the playlist embed. Implement `onReady`, `onStateChange`, and `onError` handlers and map `onError` codes to user-facing error categories (private/un-embeddable, removed, general service error).
+- Fallback method: if the IFrame API is not used, detect embed failure by (a) listening for iframe `load`/`error` events where available and (b) applying a conservative timeout (8 seconds) after iframe insertion — if no ready/state-change or successful playback evidence appears in that window, treat as `EMBED_ERROR_TIMEOUT` and surface a friendly error.
+- Error categories and user messages:
+	- `EMBED_ERROR_PRIVATE`: "This playlist cannot be embedded or is private. Open on YouTube to check visibility."
+	- `EMBED_ERROR_SERVICE`: "We couldn't load the playlist. Please try again later."
+	- `EMBED_ERROR_TIMEOUT`: "The playlist didn't start loading. Please check the link or try again."
+- Verification: Add unit/integration tests that mock the Player API `onError` and simulate timeout fallback. Add an integration manual check for the described messages.
+
+Add a follow-up implementation task in `tasks.md` (T029) to wire the Player API and timeout fallback.

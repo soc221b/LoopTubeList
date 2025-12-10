@@ -53,7 +53,13 @@ The site displays the input and player responsively across common screen sizes; 
 ### Edge Cases
 
 - User pastes a YouTube single-video URL (not a playlist): show a message explaining a playlist link is required and suggest copying the playlist from YouTube.
-- Playlist is private or un-embeddable: detect playback failure in the embedded player (player API event or iframe load failure) and show "This playlist cannot be embedded or is private." message.
+- Playlist is private or un-embeddable: detect playback failure using the YouTube IFrame Player API where possible and show a clear, specific error message. Implementation guidance:
+	- Primary detection: use the YouTube IFrame Player API (`onError` callback) to detect embed errors and map YouTube error codes to user-facing categories (e.g., private/un-embeddable, removed, playback unavailable).
+	- Fallback detection: if the IFrame API cannot be used, treat the absence of a readiness event or player state change within an 8-second window after iframe insertion as an embed failure (timeout). Also listen for iframe `load`/`error` signals where supported.
+	- Error messages: surface one of the following messages based on detection:
+		- Private/un-embeddable: "This playlist cannot be embedded or is private. Open on YouTube to check visibility."
+		- Service/timeout: "We couldn't load the playlist. Please try again later."
+	- Acceptance criteria: detect and display the appropriate error category within 8 seconds of the user's submit for embed failures; provide a link to open the playlist on YouTube for manual checks.
 - Very long or malformed input: trim whitespace, validate length, and reject obviously invalid inputs with an error.
 - Network or YouTube service errors: show a transient error recommending retry.
 

@@ -99,6 +99,9 @@ description: "Generated task list for feature implementation: Play YouTube Playl
 - [ ] T024 [P] Add CI workflow `.github/workflows/ci.yml` to run `npm ci`, `@biomejs/biome check`, and `npm test` (file: `/.github/workflows/ci.yml`)
 - [ ] T025 [P] Documentation: Add developer notes and A11y checklist to `specs/001-add-playlist-iframe/research.md` (file: `/specs/001-add-playlist-iframe/research.md`)
 - [ ] T026 Security: Audit input handling to ensure no HTML injection - add a checklist entry in `specs/001-add-playlist-iframe/checklists/requirements.md` (file: `/specs/001-add-playlist-iframe/checklists/requirements.md`)
+- [ ] T027 [P] Add `web-vitals` instrumentation to capture LCP/CLS/INP and add a small reporting hook (file: `/utils/webVitals.ts`, add to `app/layout.tsx` or `app/page.tsx`) (coverage for SC-001)
+- [ ] T028 [P] Integrate automated accessibility checks into CI: add `jest-axe` tests and/or `lighthouse-ci` configuration and CI job (file: `/.github/workflows/ci.yml`, tests: `/tests/a11y/*.test.tsx`)
+- [ ] T029 [P] Implement IFrame Player API failure detection with an 8s timeout fallback and map errors to user messages (file: `/components/PlaylistPlayer.tsx`, `/tests/integration/playback.test.tsx`)
 
 ---
 
