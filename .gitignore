@@ -33,6 +33,9 @@ yarn.lock
 *.tmp
 *.swp
 
+# speckit / agent temporary files
+.specify/tmp/
+
 # Misc
 .cache/
 coverage/
