@@ -1,18 +1,14 @@
 <!--
 Sync Impact Report
 
-Version change: TEMPLATE -> 0.1.0
+Version change: 0.1.0 -> 0.2.0
 
-Modified principles:
-- [PRINCIPLE_1_NAME] -> Accessibility & User-First
-- [PRINCIPLE_2_NAME] -> Test-First Quality (NON-NEGOTIABLE)
-- [PRINCIPLE_3_NAME] -> Minimal Dependencies & Simplicity
-- [PRINCIPLE_4_NAME] -> Observability & Error Handling
-- [PRINCIPLE_5_NAME] -> Versioning, Releases & Licensing
+Modified sections:
+- Development Workflow & Quality Gates: added explicit local sync requirement for `main`
 
-Added sections:
-- Security & Privacy Requirements
-- Development Workflow & Quality Gates
+Added/updated guidance:
+- Development Workflow: contributors MUST sync their local `main` with `origin/main` after a PR merge to
+    avoid branch divergence (see new bullet in Development Workflow & Quality Gates).
 
 Removed sections:
 - None
@@ -21,11 +17,6 @@ Templates reviewed:
 - .specify/templates/plan-template.md: ✅ reviewed (no change required)
 - .specify/templates/spec-template.md: ✅ reviewed (no change required)
 - .specify/templates/tasks-template.md: ✅ reviewed (no change required)
-
-Templates requiring updates:
-- .specify/templates/plan-template.md: ✅ updated/compatible
-- .specify/templates/spec-template.md: ✅ updated/compatible
-- .specify/templates/tasks-template.md: ✅ updated/compatible
 
 Follow-up TODOs:
 - TODO(RATIFICATION_DATE): original adoption date unknown — please supply ISO date (YYYY-MM-DD)
@@ -75,6 +66,16 @@ before release.
 - Commits: Use conventional commits where possible (e.g., `feat:`, `fix:`, `docs:`) to simplify changelog generation.
 - Releases: Tag releases with semantic versions and include changelog and migration notes for breaking changes.
 
+- Local `main` sync (MANDATORY): After a PR is merged into `main`, contributors and maintainers MUST sync their
+    local `main` branch with the remote `origin/main` promptly to avoid divergence. A simple, testable command is:
+
+    ```bash
+    git fetch origin && git checkout main && git reset --hard origin/main
+    ```
+
+    Rationale: This prevents the common divergence where local `main` contains commits not present on `origin/main`,
+    reduces accidental direct pushes that violate repository rules, and keeps local development environments consistent.
+
 ## Governance
 Amendments to this constitution MUST be made via a documented Pull Request that: (1) updates this file, (2) provides
 an explicit rationale and migration plan for any breaking governance changes, and (3) is approved by repository
@@ -86,5 +87,5 @@ Compliance Review Expectations:
 - Every release cycle SHOULD include a brief constitution compliance check (examples: ensure CI still enforces tests,
   a11y checks pass, dependency policy followed).
 
-**Version**: 0.1.0 | **Ratified**: TODO(RATIFICATION_DATE): original adoption date unknown | **Last Amended**: 2025-12-10
+**Version**: 0.2.0 | **Ratified**: TODO(RATIFICATION_DATE): original adoption date unknown | **Last Amended**: 2025-12-10
 
