@@ -1,4 +1,3 @@
-```markdown
 # Feature Specification: Fix Dev Server Compile Error
 
 **Feature Branch**: `002-fix-compile-error`
@@ -79,5 +78,3 @@ As a developer, when I run `npm run dev` in the project root, I see an immediate
 
 - If the error is environment-specific (Node version, global tool), document required environment in `README.md` and add an `.nvmrc` if appropriate.
 - If side effects are found in `components/PlaylistPlayer.tsx` (existing tests referencing the component), update tests and confirm behavior.
-
-```
