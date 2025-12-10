@@ -16,4 +16,23 @@
 2. Add a CI job (e.g., GitHub Actions) to run `npm ci` and `npm run build` to detect compile failures early.
 3. Reproduce locally and classify root cause. If TypeScript typing is the cause, add a targeted unit test or type-check-only CI job.
 
+## Root Cause (Investigation)
+
+Reproduced the failure by running `npm ci` and `npm run build`. Build failed with these diagnostics:
+
+- `next/font` error: Unknown font `Geist`
+- `next/font` error: Unknown font `Geist Mono`
+
+Files implicated: `app/layout.tsx` — the application imports `Geist` and `Geist_Mono` from `next/font/google`, but those font names are not available from the Next.js google font helper. This caused the build to fail with `Unknown font` errors.
+
+Fix applied: Replaced the unknown imports with supported fonts from `next/font/google`:
+
+- `Geist` → `Inter`
+- `Geist_Mono` → `Fira_Code`
+
+Rationale: Using supported font helpers resolves the `next/font` lookup error without requiring a font upload or additional dependency. The change is minimal and keeps the CSS variable names unchanged (`--font-geist-sans`, `--font-geist-mono`) so downstream CSS continues to work.
+
+Verification: After the change, `npm run build` completes successfully and static pages are generated.
+
+
 ```
