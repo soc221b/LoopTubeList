@@ -17,9 +17,9 @@ description: "Tasks for fixing the Next.js dev server compile error"
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-- [ ] T004 [P] Update `README.md` with required Node version and local dev instructions (file: `./README.md`)
-- [ ] T005 [P] Add `.env.example` and document required environment variables if any (file: `./.env.example`)
-- [ ] T006 [P] Ensure `package.json` scripts include `dev`, `build`, and `start` and that `dev` maps to `next dev` (file: `./package.json`)
+- [X] T004 [P] Update `README.md` with required Node version and local dev instructions (file: `./README.md`)
+- [X] T005 [P] Add `.env.example` and document required environment variables if any (file: `./.env.example`)
+- [X] T006 [P] Ensure `package.json` scripts include `dev`, `build`, and `start` and that `dev` maps to `next dev` (file: `./package.json`)
 
 **Checkpoint**: Foundation ready — reproduction and diagnosis tasks may now run
 
@@ -45,10 +45,10 @@ description: "Tasks for fixing the Next.js dev server compile error"
 
 ## Phase 4: Polish & Cross-Cutting Concerns
 
-- [ ] T014 [P] Update `./README.md` quickstart section with the reproduction and verification steps (file: `./README.md`)
-- [ ] T015 [P] Add `.nvmrc` (if not already added in T001) and document Node version in CI matrix (file: `./.nvmrc` and `./.github/workflows/ci-smoke.yml`)
-- [ ] T016 [P] Remove any temporary debug files created during investigation (e.g., `specs/002-fix-compile-error/dev-compile.log` or move to `specs/002-fix-compile-error/artifacts/`)
-- [ ] T017 [P] Add changelog entry in `CHANGELOG.md` documenting the fix (file: `./CHANGELOG.md`)
+- [X] T014 [P] Update `./README.md` quickstart section with the reproduction and verification steps (file: `./README.md`)
+- [X] T015 [P] Add `.nvmrc` (if not already added in T001) and document Node version in CI matrix (file: `./.nvmrc` and `./.github/workflows/ci-smoke.yml`)
+- [X] T016 [P] Remove any temporary debug files created during investigation (e.g., `specs/002-fix-compile-error/dev-compile.log` or move to `specs/002-fix-compile-error/artifacts/`)
+- [X] T017 [P] Add changelog entry in `CHANGELOG.md` documenting the fix (file: `./CHANGELOG.md`)
 
 ---
 
