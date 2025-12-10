@@ -37,7 +37,7 @@ description: "Tasks for fixing the Next.js dev server compile error"
 - [X] T010 [US1] Add or update tests to prevent regression: create `tests/smoke/dev-start.test.ts` (or add a CI smoke job) that runs `npm run build` and asserts exit code 0 (file: `tests/smoke/dev-start.test.ts`)
 - [X] T011 [US1] Update CI workflow `./.github/workflows/ci-smoke.yml` to run on PRs and verify `npm ci && npm run build` succeeds
 - [X] T012 [US1] Create a PR with the fix, include `specs/002-fix-compile-error/dev-compile.log` and `specs/002-fix-compile-error/research.md` root-cause notes, and request reviewers to verify local startup
-- [ ] T013 [US1] Address review feedback, update implementation and tests as required, and merge the PR
+- [X] T013 [US1] Address review feedback, update implementation and tests as required, and merge the PR
 
 **Checkpoint**: User Story 1 should now be resolved and independently testable
 
