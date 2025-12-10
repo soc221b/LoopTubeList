@@ -9,6 +9,11 @@ module.exports = {
     '^.+\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '^.+\\.(png|jpg|jpeg|gif|webp|svg)$': '<rootDir>/jest.fileMock.js'
   },
-  testMatch: ['**/tests/**/*.test.(ts|tsx|js)'],
+  testMatch: ['**/tests/**/*.test.{ts,tsx,js}'],
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/tsconfig.jest.json'
+    }
+  },
   collectCoverage: false
 };
