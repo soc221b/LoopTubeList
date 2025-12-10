@@ -10,6 +10,12 @@ module.exports = {
     '^.+\\.(png|jpg|jpeg|gif|webp|svg)$': '<rootDir>/jest.fileMock.js'
   },
   testMatch: ['**/tests/**/*.test.{ts,tsx,js}'],
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest'
+  },
+  // ensure node_modules is ignored by transformers (default) but allow
+  // explicit control if specific packages need transforming
+  transformIgnorePatterns: ['/node_modules/'],
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.jest.json'
