@@ -29,7 +29,7 @@ docker run -it -v .:/repo copilot
 4. Inside the container, you can now run Copilot commands, for example:
 
 ```sh
-copilot
+copilot --allow-all-tools --allow-all-paths --disable-builtin-mcps
 ```
 
 That's it!
