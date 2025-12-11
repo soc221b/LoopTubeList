@@ -123,6 +123,14 @@ description: "Task list for Spaced Repetition Playlist feature implementation"
 - [ ] T041 [P] Final UI polish and cross-browser responsive checks (desktop + mobile) in src/styles and component tweaks
 - [ ] T042 [P] Create a migration/rollback note in docs/ for persistence schema changes (docs/migrations.md)
 
+--- Observability, Measurement & Security Tasks (Constitutional coverage) ---
+
+- [ ] T043 [P] Implement client-side observability: add a small structured logging helper (src/lib/logging.ts), wire error/context emission from Player and persistence modules, and document the log schema in docs/observability.md.
+- [ ] T044 [P] Measurement harness execution: create tests/perf/run-harness.ts that runs the resume-latency and first-play harness (N/M runs) and emits JSON reports to reports/{resume-latency,first-play}/<timestamp>-report.json; add a script npm run perf:report to run and collect artifacts.
+- [ ] T045 [P] Release & changelog: add a release script and changelog generation task (scripts/release.md) that documents semantic versioning policy and includes migration notes for persistence schema changes (docs/migrations.md).
+- [ ] T046 [P] Metadata fetch + fallback: implement src/services/metadata.ts to attempt oEmbed/YouTube Data API metadata retrieval with graceful fallback to user-supplied metadata; include unit tests and error handling tests.
+- [ ] T047 [P] Security review & input validation tests: perform a brief threat-model review and add tests that assert sanitization/validation of input URLs, and that persisted data does not contain PII; document privacy considerations in docs/privacy.md.
+
 ---
 
 ## Dependencies & Execution Order

@@ -25,7 +25,7 @@ SC-002 (Time-to-first-play on first visit)
 
 SC-003 (Ordering correctness)
 - What to test: Deterministic unit tests for scoring function using fixed watch histories, fixture-driven unit tests.
-- Automation: Jest unit tests covering top-3 ordering and monotonicity properties.
+- Automation: Vitest unit tests covering top-3 ordering and monotonicity properties.
 - Pass threshold: All unit tests pass
 - Command: npm run test:unit
 

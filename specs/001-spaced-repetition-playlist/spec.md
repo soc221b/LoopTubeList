@@ -73,6 +73,8 @@ Acceptance Scenarios:
 - NFR-002 (Testing): Tests MUST be provided: unit tests for scoring/order logic, integration tests for add/play/remove flows, and regression checks for resume behavior.
 - NFR-003 (UX): UI must be simple and clean; error messages and accessible labels must be included in acceptance criteria.
 - NFR-004 (Performance): Primary user flows (open playlist, start/resume playback) SHOULD respond quickly on typical consumer connections and devices (see Success Criteria for targets).
+- NFR-005 (Security): Input URLs and any user-provided data MUST be validated and sanitized before use; per-device persisted data MUST avoid storing sensitive PII. Implement a brief threat model for embedded playback (iframe origin checks, postMessage handling) and include unit/integration tests validating input sanitization, persistence privacy constraints, and basic XSS protections.
+- NFR-006 (Observability): The client MUST emit structured logs for player lifecycle events, errors, and persistence operations. Define a minimal log schema (timestamp, level, component, event, context{videoId, position, error}). Include a telemetry smoke-test to validate emission of a sample structured payload and document where logs are written (console/local sink or remote) in docs/observability.md.
 
 ### Key Entities
 - Video
@@ -110,7 +112,7 @@ This section defines how each Success Criterion will be measured, reported, and 
   - Report artifact: reports/first-play/<timestamp>-report.json
 
 - SC-003 (Ordering correctness):
-  - Measurement: Deterministic unit tests (Jest) run against scoring function with fixture datasets; test asserts top-3 positions for N fixtures.
+  - Measurement: Deterministic unit tests (Vitest + RTL) run against scoring function with fixture datasets; test asserts top-3 positions for N fixtures.
   - Threshold: pass if all unit tests pass (0 failing) and property tests for monotonicity hold.
   - Report artifact: reports/unit/<timestamp>-report.json (test summary)
 

@@ -28,7 +28,7 @@
 - [x] User scenarios cover primary flows
 - [x] Feature meets measurable outcomes defined in Success Criteria
 
-**Evidence**: Measurement & Validation Plan included in the spec ("Measurement & Validation Plan" section) and test-plan at specs/001-spaced-repetition-playlist/checklists/test-plan.md. Execution artifacts (JSON reports) will be stored under reports/ and referenced here after test execution.
+**Evidence**: (1) Measurement & Validation Plan included in the spec and test-plan at specs/001-spaced-repetition-playlist/checklists/test-plan.md; (2) Required execution artifacts: reports/resume-latency/<timestamp>-report.json, reports/first-play/<timestamp>-report.json, reports/unit/<timestamp>-report.json, reports/add-remove/<timestamp>-report.json, reports/accessibility/<timestamp>-report.json. The checklist item is considered "ready-to-validate" when the plan exists and "validated" only after the above reports exist and meet thresholds.
 - [x] No implementation details leak into specification
 
 ## Notes
