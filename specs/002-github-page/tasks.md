@@ -41,11 +41,11 @@ description: "Generated tasks for feature 002-github-page"
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Ensure the Pages workflow trigger includes `on: push: branches: [main]` (or the repo default branch) in `/repo/.github/workflows/pages.yml` (file: /repo/.github/workflows/pages.yml)
-- [ ] T009 [US1] Add a workflow step to log the published Pages URL and mark the deployment status in the Actions summary (update `/repo/.github/workflows/pages.yml`) (file: /repo/.github/workflows/pages.yml)
-- [ ] T010 [P] [US1] Add a smoke end-to-end test that verifies the published URL returns a 200 and contains expected text; put test at `/repo/tests/e2e/pages-smoke.spec.ts` (file: /repo/tests/e2e/pages-smoke.spec.ts)
-- [ ] T011 [US1] Add CI job step to run the smoke test only after deployment (update `/repo/.github/workflows/pages.yml`) (file: /repo/.github/workflows/pages.yml)
-- [ ] T012 [US1] Add brief verification instructions to `/repo/specs/002-github-page/quickstart.md` describing how to validate a pushed change updated the Pages site (file: /repo/specs/002-github-page/quickstart.md)
+- [X] T008 [US1] Ensure the Pages workflow trigger includes `on: push: branches: [main]` (or the repo default branch) in `/repo/.github/workflows/pages.yml` (file: /repo/.github/workflows/pages.yml)
+- [X] T009 [US1] Add a workflow step to log the published Pages URL and mark the deployment status in the Actions summary (update `/repo/.github/workflows/pages.yml`) (file: /repo/.github/workflows/pages.yml)
+- [X] T010 [P] [US1] Add a smoke end-to-end test that verifies the published URL returns a 200 and contains expected text; test added at `/repo/tests/e2e/pages-smoke.test.js` (file: /repo/tests/e2e/pages-smoke.test.js)
+- [X] T011 [US1] Add CI job step to run the smoke test only after deployment (update `/repo/.github/workflows/pages.yml`) (file: /repo/.github/workflows/pages.yml)
+- [X] T012 [US1] Add brief verification instructions to `/repo/specs/002-github-page/quickstart.md` describing how to validate a pushed change updated the Pages site (file: /repo/specs/002-github-page/quickstart.md)
 
 **Checkpoint**: US1 should be verifiable by a push to the default branch and the e2e smoke test.
 
@@ -62,7 +62,7 @@ description: "Generated tasks for feature 002-github-page"
 - [X] T013 [US2] Add `deploy:local` npm script using GitHub CLI in `/repo/package.json` (e.g., `gh pages deploy ./dist`) (file: /repo/package.json)
 - [X] T014 [US2] Add fallback npm script `deploy:gh-pages` using the `gh-pages` package and add `gh-pages` as a devDependency in `/repo/package.json` (file: /repo/package.json)
 - [X] T015 [US2] Create helper script `/repo/scripts/deploy-local.sh` that runs pre-deploy checks (ensures `dist/index.html` exists) and invokes `gh pages deploy ./dist` (file: /repo/scripts/deploy-local.sh)
-- [ ] T016 [US2] Add a short section to `/repo/README.md` that documents the local deploy steps and references `/repo/specs/002-github-page/quickstart.md` (file: /repo/README.md)
+- [X] T016 [US2] Add a short section to `/repo/README.md` that documents the local deploy steps and references `/repo/specs/002-github-page/quickstart.md` (file: /repo/README.md)
 
 **Checkpoint**: US2 is complete when a developer can run `npm run build` then `npm run deploy:local` (or `npm run deploy:gh-pages`) and see the site updated.
 
@@ -76,9 +76,9 @@ description: "Generated tasks for feature 002-github-page"
 
 ### Implementation for User Story 3
 
-- [ ] T017 [P] [US3] Add documentation on custom domain setup and DNS steps in `/repo/docs/custom-domain.md` (file: /repo/docs/custom-domain.md)
-- [ ] T018 [US3] Add a note to the quickstart describing where to place `CNAME` so it is included in the `dist/` artifact (update `/repo/specs/002-github-page/quickstart.md`) (file: /repo/specs/002-github-page/quickstart.md)
-- [ ] T019 [US3] Ensure the Pages workflow preserves `CNAME` when publishing by keeping CNAME in the uploaded artifact (update `/repo/.github/workflows/pages.yml`) (file: /repo/.github/workflows/pages.yml)
+- [X] T017 [P] [US3] Add documentation on custom domain setup and DNS steps in `/repo/docs/custom-domain.md` (file: /repo/docs/custom-domain.md)
+- [X] T018 [US3] Add a note to the quickstart describing where to place `CNAME` so it is included in the `dist/` artifact (update `/repo/specs/002-github-page/quickstart.md`) (file: /repo/specs/002-github-page/quickstart.md)
+- [X] T019 [US3] Ensure the Pages workflow preserves `CNAME` when publishing by keeping CNAME in the uploaded artifact (update `/repo/.github/workflows/pages.yml`) (file: /repo/.github/workflows/pages.yml)
 
 **Checkpoint**: US3 is testable by configuring a custom domain and verifying DNS and Pages settings.
 
@@ -88,11 +88,11 @@ description: "Generated tasks for feature 002-github-page"
 
 **Purpose**: Documentation, cleanup, and cross-cutting improvements
 
-- [ ] T020 [P] Update `/repo/specs/002-github-page/tasks.md` with final task run notes and mark completed tasks (file: /repo/specs/002-github-page/tasks.md)
-- [ ] T021 [P] Add a lightweight rollback instruction and optional `/repo/scripts/rollback.sh` that describes how to redeploy a previous artifact (file: /repo/scripts/rollback.sh)
+- [X] T020 [P] Update `/repo/specs/002-github-page/tasks.md` with final task run notes and mark completed tasks (file: /repo/specs/002-github-page/tasks.md)
+- [X] T021 [P] Add a lightweight rollback instruction and optional `/repo/scripts/rollback.sh` that describes how to redeploy a previous artifact (file: /repo/scripts/rollback.sh)
 - [X] T021a [P] Add rollback automation helper: implement `/repo/scripts/rollback.sh` that can redeploy a previous artifact given an artifact ID or commit SHA and document usage (file: /repo/scripts/rollback.sh)
-- [ ] T022 [P] Run quickstart.md validation and update any broken steps (file: /repo/specs/002-github-page/quickstart.md)
-- [ ] T023 [P] Add documentation link to `/repo/README.md` pointing to `/docs/pages-quickstart.md` and `/repo/docs/custom-domain.md` (file: /repo/README.md)
+- [X] T022 [P] Run quickstart.md validation and update any broken steps (file: /repo/specs/002-github-page/quickstart.md)
+- [X] T023 [P] Add documentation link to `/repo/README.md` pointing to `/docs/pages-quickstart.md` and `/repo/docs/custom-domain.md` (file: /repo/README.md)
 
 ---
 

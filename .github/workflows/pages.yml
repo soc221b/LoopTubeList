@@ -80,6 +80,38 @@ PY
         uses: actions/download-pages-artifact@v3
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
+      - name: Announce deployment in Actions summary
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pagesUrl = `https://${owner}.github.io/${repo}`;
+            core.summary.addRaw(`Deployed Pages site: ${pagesUrl}\nCommit: ${process.env.GITHUB_SHA}`).write();
+
+  smoke-test:
+    name: Smoke test deployed Pages
+    runs-on: ubuntu-latest
+    needs: deploy-pages
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run smoke test (HTTP check)
+        env:
+          PAGES_URL: "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+        run: |
+          echo "Checking ${PAGES_URL}"
+          status=$(curl -s -o /dev/null -w "%{http_code}" "${PAGES_URL}") || true
+          echo "HTTP status: ${status}"
+          if [ "${status}" != "200" ]; then
+            echo "Smoke test failed: ${PAGES_URL} did not return 200" >&2
+            exit 1
+          fi
 
   notify-on-failure:
     name: Notify on failure
