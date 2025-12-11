@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: Deployments (read-only)
+  version: 1.0.0
+paths:
+  /deployments:
+    get:
+      summary: List recent deployment records
+      responses:
+        '200':
+          description: A list of deployment records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeploymentRecord'
+  /deployments/{id}:
+    get:
+      summary: Get a deployment record by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deployment record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentRecord'
+components:
+  schemas:
+    DeploymentRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        commit:
+          type: string
+        source:
+          type: string
+          enum: [ci, manual]
+        status:
+          type: string
+          enum: [pending, success, failure]
+        published_at:
+          type: string
+          format: date-time
+        logs_url:
+          type: string
+      required: [id, commit, status]

@@ -87,12 +87,17 @@ As a product owner, I want the option to use a custom domain for the Pages site 
 ### Key Entities *(include if feature involves data)*
 
 - **Site Build Artifact**: The static files produced by the project's build step (HTML, CSS, JS, assets). These are artefacts of the build process and are published as the public site.
-- **Deployment Record**: Metadata about a publish event (timestamp, source commit, status) surfaced in CI logs or build history for auditing.
+- **Deployment Record**: Metadata about a publish event (timestamp, source commit, status) surfaced in CI logs or build history for auditing. Canonical artifact path: `artifacts/deployment-record.json`.
 
-### Key Entities *(include if feature involves data)*
+- **Deployment Record Schema**: The deployment-record JSON artifact MUST follow this schema:
+  - `commitSHA`: string — full commit SHA of the source that produced the artifact
+  - `timestamp`: string — ISO8601 UTC timestamp of the deployment event
+  - `artifactSizeBytes`: integer — size in bytes of the uploaded artifact
+  - `status`: string — one of `"success"` or `"failure"`
+  - `sourceBranch`: string — branch name that triggered the deployment
 
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
+The deployment-record artifact is intended for auditing and troubleshooting; CI workflows SHOULD generate and upload this artifact on every publish attempt.
+
 
 ## Success Criteria *(mandatory)*
 
