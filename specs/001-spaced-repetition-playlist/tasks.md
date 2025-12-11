@@ -37,7 +37,7 @@ description: "Task list for Spaced Repetition Playlist feature implementation"
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 - [ ] T008 Create TypeScript types for domain entities: src/types/video.ts and src/types/playlist.ts
-- [ ] T009 Implement persistence abstraction (localStorage + optional IndexedDB wrapper) at src/lib/persistence.ts
+- [x] T009 Implement persistence abstraction (localStorage + optional IndexedDB wrapper) at src/lib/persistence.ts
 - [ ] T010 [P] Create Zustand store skeleton at src/state/store.ts with shape for playlists, videos, and watch records
 - [x] T011 Implement scoring service (forgetting-curve heuristic) at src/services/scoring.ts and add unit test fixture tests in tests/unit/scoring.test.ts
 - [ ] T012 [P] Create services/helpers for parsing/validating YouTube URLs at src/services/youtube.ts
@@ -79,7 +79,7 @@ description: "Task list for Spaced Repetition Playlist feature implementation"
 **Independent Test**: Play for 45 seconds → close app → reopen → resume within 2s of saved timestamp.
 
 ### Tests (TDD mandatory)
-- [ ] T025 [US2] Add unit tests for persistence layer APIs in tests/unit/persistence.test.ts
+- [x] T025 [US2] Add unit tests for persistence layer APIs in tests/unit/persistence.test.ts
 - [ ] T026 [US2] Add component-level tests for Player resume behavior in tests/unit/player-resume.test.tsx
 
 ### Implementation
