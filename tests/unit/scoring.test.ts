@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { sortByPriority } from '../../../src/services/scoring'
+import { sortByPriority } from '../../src/services/scoring'
 
 const now = new Date()
 const tenDays = new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000)
