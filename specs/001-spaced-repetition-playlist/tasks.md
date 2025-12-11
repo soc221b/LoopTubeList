@@ -39,7 +39,7 @@ description: "Task list for Spaced Repetition Playlist feature implementation"
 - [ ] T008 Create TypeScript types for domain entities: src/types/video.ts and src/types/playlist.ts
 - [ ] T009 Implement persistence abstraction (localStorage + optional IndexedDB wrapper) at src/lib/persistence.ts
 - [ ] T010 [P] Create Zustand store skeleton at src/state/store.ts with shape for playlists, videos, and watch records
-- [ ] T011 Implement scoring service (forgetting-curve heuristic) at src/services/scoring.ts and add unit test fixture tests in tests/unit/scoring.test.ts
+- [x] T011 Implement scoring service (forgetting-curve heuristic) at src/services/scoring.ts and add unit test fixture tests in tests/unit/scoring.test.ts
 - [ ] T012 [P] Create services/helpers for parsing/validating YouTube URLs at src/services/youtube.ts
 - [ ] T013 Create UI layout and shell components: src/components/Layout.tsx, src/components/Header.tsx, src/components/Footer.tsx
 - [ ] T014 [P] Add accessibility baseline (skip-link, ARIA landmarks) into src/components/Layout.tsx
