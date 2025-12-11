@@ -11,11 +11,11 @@ description: "Generated tasks for feature 002-github-page"
 
 **Purpose**: Project initialization and basic structure required for CI and local deploys
 
-- [ ] T001 [P] Add `deploy:local` and `deploy:gh-pages` npm scripts to package.json (file: /repo/package.json)
-- [ ] T002 [P] Create a small helper script that uses GitHub CLI to deploy `./dist` locally: `scripts/deploy-local.sh` (file: /repo/scripts/deploy-local.sh)
-- [ ] T003 [P] Add or update repository quickstart documentation referencing local and CI deploy flows (copy/update `/repo/specs/002-github-page/quickstart.md` → `/docs/pages-quickstart.md`) (file: /repo/docs/pages-quickstart.md)
-- [ ] T001a [P] (Test-First) Add failing unit test skeletons to satisfy constitution: create `/tests/unit/__placeholder__.spec.ts` with a single failing assertion (file: /repo/tests/unit/__placeholder__.spec.ts)
-- [ ] T001b [P] (Test-First) Add CI test-job stub that runs unit tests and initially fails until implementation: update `.github/workflows/pages.yml` to include a `test` job/stub (file: /repo/.github/workflows/pages.yml)
+- [X] T001 [P] Add `deploy:local` and `deploy:gh-pages` npm scripts to package.json (file: /repo/package.json)
+- [X] T002 [P] Create a small helper script that uses GitHub CLI to deploy `./dist` locally: `scripts/deploy-local.sh` (file: /repo/scripts/deploy-local.sh)
+- [X] T003 [P] Add or update repository quickstart documentation referencing local and CI deploy flows (copy/update `/repo/specs/002-github-page/quickstart.md` → `/docs/pages-quickstart.md`) (file: /repo/docs/pages-quickstart.md)
+- [X] T001a [P] (Test-First) Add failing unit test skeletons to satisfy constitution: create `/tests/unit/__placeholder__.spec.ts` with a single failing assertion (file: /repo/tests/unit/__placeholder__.spec.ts)
+- [X] T001b [P] (Test-First) Add CI test-job stub that runs unit tests and initially fails until implementation: update `.github/workflows/pages.yml` to include a `test` job/stub (file: /repo/.github/workflows/pages.yml)
 
 ---
 
@@ -23,11 +23,11 @@ description: "Generated tasks for feature 002-github-page"
 
 **Purpose**: Core CI/Pages infrastructure that MUST be complete before user stories can be implemented
 
-- [ ] T004 Create GitHub Actions workflow to build and publish Pages on push to the default branch: add `.github/workflows/pages.yml` with steps: checkout, npm ci, npm run lint, npm run test:unit, npm run build, actions/upload-pages-artifact@v3 (upload `dist/`), actions/deploy-pages@v1 (deploy artifact) (file: /repo/.github/workflows/pages.yml)
-- [ ] T005 Ensure the workflow runs lint and unit/e2e tests before build (update `/repo/.github/workflows/pages.yml` to include `npm run lint`, `npm run test:unit`, `npm run test:e2e`) (file: /repo/.github/workflows/pages.yml)
-- [ ] T006 Add a workflow validation step that fails the run if `dist/index.html` is missing after build (update `/repo/.github/workflows/pages.yml`) (file: /repo/.github/workflows/pages.yml)
-- [ ] T007 Add a simple deployment-record generator that writes deployment metadata (commit SHA, timestamp, artifact size) to `artifacts/deployment-record.json` and upload it as a workflow artifact (create `/repo/scripts/generate-deployment-record.sh` and reference from `/repo/.github/workflows/pages.yml`) (files: /repo/scripts/generate-deployment-record.sh, /repo/.github/workflows/pages.yml)
-- [ ] T007a Add Actions summary and failure notification: post a concise failure summary to the Actions run summary and optionally open an issue or send a notification via configured webhook when deployment validation fails (update `/repo/.github/workflows/pages.yml`) (file: /repo/.github/workflows/pages.yml)
+- [X] T004 Create GitHub Actions workflow to build and publish Pages on push to the default branch: add `.github/workflows/pages.yml` with steps: checkout, npm ci, npm run lint, npm run test:unit, npm run build, actions/upload-pages-artifact@v3 (upload `dist/`), actions/deploy-pages@v1 (deploy artifact) (file: /repo/.github/workflows/pages.yml)
+- [X] T005 Ensure the workflow runs lint and unit/e2e tests before build (update `/repo/.github/workflows/pages.yml` to include `npm run lint`, `npm run test:unit`, `npm run test:e2e`) (file: /repo/.github/workflows/pages.yml)
+- [X] T006 Add a workflow validation step that fails the run if `dist/index.html` is missing after build (update `/repo/.github/workflows/pages.yml`) (file: /repo/.github/workflows/pages.yml)
+- [X] T007 Add a simple deployment-record generator that writes deployment metadata (commit SHA, timestamp, artifact size) to `artifacts/deployment-record.json` and upload it as a workflow artifact (create `/repo/scripts/generate-deployment-record.sh` and reference from `/repo/.github/workflows/pages.yml`) (files: /repo/scripts/generate-deployment-record.sh, /repo/.github/workflows/pages.yml)
+- [X] T007a Add Actions summary and failure notification: post a concise failure summary to the Actions run summary and optionally open an issue or send a notification via configured webhook when deployment validation fails (update `/repo/.github/workflows/pages.yml`) (file: /repo/.github/workflows/pages.yml)
 
 **Checkpoint**: After Phase 2 the CI must build, validate the site, and publish artifacts for audit.
 
@@ -59,9 +59,9 @@ description: "Generated tasks for feature 002-github-page"
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Add `deploy:local` npm script using GitHub CLI in `/repo/package.json` (e.g., `gh pages deploy ./dist`) (file: /repo/package.json)
-- [ ] T014 [US2] Add fallback npm script `deploy:gh-pages` using the `gh-pages` package and add `gh-pages` as a devDependency in `/repo/package.json` (file: /repo/package.json)
-- [ ] T015 [US2] Create helper script `/repo/scripts/deploy-local.sh` that runs pre-deploy checks (ensures `dist/index.html` exists) and invokes `gh pages deploy ./dist` (file: /repo/scripts/deploy-local.sh)
+- [X] T013 [US2] Add `deploy:local` npm script using GitHub CLI in `/repo/package.json` (e.g., `gh pages deploy ./dist`) (file: /repo/package.json)
+- [X] T014 [US2] Add fallback npm script `deploy:gh-pages` using the `gh-pages` package and add `gh-pages` as a devDependency in `/repo/package.json` (file: /repo/package.json)
+- [X] T015 [US2] Create helper script `/repo/scripts/deploy-local.sh` that runs pre-deploy checks (ensures `dist/index.html` exists) and invokes `gh pages deploy ./dist` (file: /repo/scripts/deploy-local.sh)
 - [ ] T016 [US2] Add a short section to `/repo/README.md` that documents the local deploy steps and references `/repo/specs/002-github-page/quickstart.md` (file: /repo/README.md)
 
 **Checkpoint**: US2 is complete when a developer can run `npm run build` then `npm run deploy:local` (or `npm run deploy:gh-pages`) and see the site updated.
@@ -90,7 +90,7 @@ description: "Generated tasks for feature 002-github-page"
 
 - [ ] T020 [P] Update `/repo/specs/002-github-page/tasks.md` with final task run notes and mark completed tasks (file: /repo/specs/002-github-page/tasks.md)
 - [ ] T021 [P] Add a lightweight rollback instruction and optional `/repo/scripts/rollback.sh` that describes how to redeploy a previous artifact (file: /repo/scripts/rollback.sh)
-- [ ] T021a [P] Add rollback automation helper: implement `/repo/scripts/rollback.sh` that can redeploy a previous artifact given an artifact ID or commit SHA and document usage (file: /repo/scripts/rollback.sh)
+- [X] T021a [P] Add rollback automation helper: implement `/repo/scripts/rollback.sh` that can redeploy a previous artifact given an artifact ID or commit SHA and document usage (file: /repo/scripts/rollback.sh)
 - [ ] T022 [P] Run quickstart.md validation and update any broken steps (file: /repo/specs/002-github-page/quickstart.md)
 - [ ] T023 [P] Add documentation link to `/repo/README.md` pointing to `/docs/pages-quickstart.md` and `/repo/docs/custom-domain.md` (file: /repo/README.md)
 
