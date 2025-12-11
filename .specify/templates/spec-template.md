@@ -78,9 +78,28 @@
 ## Requirements *(mandatory)*
 
 <!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right functional requirements.
+  Non-functional requirements mandated by the constitution are required below.
+  Authors MUST include explicit functional requirements and the following non-functional specs when applicable:
+  - Code Quality: linters, formatters, and maintainability notes.
+  - Testing: list of unit, integration, contract, and performance tests to be provided.
+  - UX Acceptance: user-facing acceptance criteria, accessibility checks, and examples.
+  - Performance: measurable targets (latency p95, throughput, memory) and how they will be validated.
 -->
+
+### Functional Requirements
+
+- **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
+- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
+- **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
+- **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
+- **FR-005**: System MUST [behavior, e.g., "log all security events"]
+
+### Non-Functional Requirements (Constitutional)
+
+- **NFR-001 (Code Quality)**: The implementation MUST pass the repository linter and formatter configuration.
+- **NFR-002 (Testing)**: Required tests and execution strategy MUST be listed; tests MUST be added to the repo as part of the feature.
+- **NFR-003 (UX)**: UX acceptance criteria and quickstart steps MUST be included for user-facing features.
+- **NFR-004 (Performance)**: When applicable, measurable performance targets and test harnesses MUST be provided.
 
 ### Functional Requirements
 

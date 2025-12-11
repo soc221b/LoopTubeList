@@ -31,7 +31,13 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Gates determined by LoopTubeList Constitution:
+- Code Quality: project linting and formatting must be configured and referenced in the plan.
+- Testing Standards: plan MUST list required unit/integration/contract tests and how they will be executed.
+- UX Consistency: acceptance criteria and quickstart examples MUST be present if feature affects user-facing flows.
+- Performance: if feature impacts performance, measurable targets (p95, throughput, memory) MUST be declared and tests identified.
+
+Constitution compliance MUST be documented in the plan's "Constitution Check" section.
 
 ## Project Structure
 
