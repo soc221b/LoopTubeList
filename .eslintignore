@@ -1,0 +1,8 @@
+# ESLint ignore
+node_modules/
+dist/
+build/
+coverage/
+.vscode/
+.idea/
+*.min.js
