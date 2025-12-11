@@ -1,0 +1,13 @@
+# Prettier ignore
+node_modules/
+dist/
+build/
+coverage/
+*.log
+.env*
+.DS_Store
+.vscode/
+.idea/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
