@@ -1,0 +1,147 @@
+openapi: 3.0.1
+info:
+  title: LoopTubeList (Optional Backend) API
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+paths:
+  /playlists:
+    get:
+      summary: List playlists
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  playlists:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Playlist'
+    post:
+      summary: Create playlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaylistCreate'
+      responses:
+        '201':
+          description: Created
+  /playlists/{playlistId}/videos:
+    post:
+      summary: Add video to playlist
+      parameters:
+        - in: path
+          name: playlistId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VideoCreate'
+      responses:
+        '200':
+          description: Added
+  /playlists/{playlistId}/videos/{videoId}:
+    delete:
+      summary: Remove video from playlist
+      parameters:
+        - in: path
+          name: playlistId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: videoId
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+  /playlists/{playlistId}/videos/{videoId}/progress:
+    patch:
+      summary: Update watch progress for a video
+      parameters:
+        - in: path
+          name: playlistId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: videoId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                last_position_seconds:
+                  type: integer
+                last_watched_at:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Updated
+components:
+  schemas:
+    Video:
+      type: object
+      properties:
+        id:
+          type: string
+        source_url:
+          type: string
+        title:
+          type: string
+        thumbnail_url:
+          type: string
+        duration_seconds:
+          type: integer
+        last_watched_at:
+          type: string
+          format: date-time
+        last_watched_position_seconds:
+          type: integer
+        watch_status:
+          type: string
+          enum: [not_watched, in_progress, watched]
+    Playlist:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        videos:
+          type: array
+          items:
+            type: string
+        ordering_mode:
+          type: string
+    PlaylistCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+    VideoCreate:
+      type: object
+      required: [source_url]
+      properties:
+        source_url:
+          type: string
+        title:
+          type: string
