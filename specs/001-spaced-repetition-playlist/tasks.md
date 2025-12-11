@@ -61,7 +61,7 @@ description: "Task list for Spaced Repetition Playlist feature implementation"
 
 ### Implementation
 - [x] T018 [US1] [P] Create AddVideoForm component at src/components/AddVideoForm.tsx and test harness (file path)
-- [ ] T019 [US1] Create VideoItem component at src/components/VideoItem.tsx showing title, thumbnail, duration, status (not_watched/in_progress/watched)
+- [x] T019 [US1] Create VideoItem component at src/components/VideoItem.tsx showing title, thumbnail, duration, status (not_watched/in_progress/watched)
 - [ ] T020 [US1] Create PlaylistView component at src/components/PlaylistView.tsx that renders ordered videos and supports selecting a video (path: src/components/PlaylistView.tsx)
 - [ ] T021 [US1] Implement Player wrapper component at src/components/Player.tsx that can embed a YouTube iframe or native <video> when available and exposes play/seek/pause APIs (file path)
 - [ ] T022 [US1] Connect UI to store: wire AddVideoForm → store → PlaylistView and Player via src/state/store.ts updates
