@@ -40,7 +40,7 @@ description: "Task list for Spaced Repetition Playlist feature implementation"
 - [x] T009 Implement persistence abstraction (localStorage + optional IndexedDB wrapper) at src/lib/persistence.ts
 - [ ] T010 [P] Create Zustand store skeleton at src/state/store.ts with shape for playlists, videos, and watch records
 - [x] T011 Implement scoring service (forgetting-curve heuristic) at src/services/scoring.ts and add unit test fixture tests in tests/unit/scoring.test.ts
-- [ ] T012 [P] Create services/helpers for parsing/validating YouTube URLs at src/services/youtube.ts
+- [x] T012 [P] Create services/helpers for parsing/validating YouTube URLs at src/services/youtube.ts
 - [ ] T013 Create UI layout and shell components: src/components/Layout.tsx, src/components/Header.tsx, src/components/Footer.tsx
 - [ ] T014 [P] Add accessibility baseline (skip-link, ARIA landmarks) into src/components/Layout.tsx
 - [ ] T015 Create a developer Quickstart and README update at specs/001-spaced-repetition-playlist/quickstart.md (path updated)
@@ -56,7 +56,7 @@ description: "Task list for Spaced Repetition Playlist feature implementation"
 **Independent Test**: Add three valid YouTube links → open player → play each video → verify player loads and shows a seek bar and title.
 
 ### Tests (TDD mandatory)
-- [ ] T016 [US1] Write unit tests for YouTube URL parsing and validation in tests/unit/youtube.test.ts
+- [x] T016 [US1] Write unit tests for YouTube URL parsing and validation in tests/unit/youtube.test.ts
 - [ ] T017 [US1] Write component tests for AddVideoForm in tests/unit/AddVideoForm.test.tsx
 
 ### Implementation
