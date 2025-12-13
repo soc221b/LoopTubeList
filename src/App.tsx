@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState, useRef, type ReactElement, type FormEvent } from "react";
-import { isYouTubeVideoUrl, getYouTubeVideoId } from "@/utils/isYouTubeVideoUrl";
+import React, { useEffect, useMemo, useState, useRef, type ReactElement, type FormEvent } from "react";
 import { SWRConfig } from 'swr';
+import { isYouTubeVideoUrl, getYouTubeVideoId, clearOembedCache } from "@/utils/isYouTubeVideoUrl";
 
 
 type Video = {
@@ -48,6 +48,11 @@ export default function App(): ReactElement {
     save(list);
   }, [list]);
 
+  // Clear any module-level oEmbed cache when App mounts to avoid cross-test pollution
+  useEffect(() => {
+    try { clearOembedCache(); } catch {}
+  }, []);
+
   const sorted = useMemo(
     () => [...list].sort((a, b) => a.nextReview - b.nextReview),
     [list],
@@ -57,33 +62,32 @@ export default function App(): ReactElement {
     e?.preventDefault();
     if (!url.trim()) return;
     const rawUrl = url.trim();
-    // Validate using shared utility (may verify via oEmbed / YouTube Data API)
-    const ok = await isYouTubeVideoUrl(rawUrl, undefined, dedupe.fetchWithDedupe);
+    // Validate format quickly without remote checks to avoid duplicate network calls
+    const ok = await isYouTubeVideoUrl(rawUrl, { checkRemote: false });
     if (!ok) {
       setError("Only YouTube video URLs are supported.");
       return;
     }
     let fetchedTitle = rawUrl;
-    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(rawUrl)}&format=json`;
-    try {
-      // prefer SWR if available to leverage deduplication; otherwise use local dedupe
-      try {
-        // dynamic import via eval to avoid bundler static analysis when `swr` isn't installed
-        // eslint-disable-next-line no-eval
-        const swr = await eval('import("swr")');
-        // use mutate to fetch and populate cache; deduplication is handled by SWRConfig if present
-        const data = await swr.mutate(oembedUrl, () => fetch(oembedUrl).then((r) => r.json()));
-        if (data && data.title) fetchedTitle = data.title;
-      } catch {
-        // SWR not available, use local dedupe keyed by youtube id so different URLs for same video share cached result
-        const youtubeId = getYouTubeVideoId(rawUrl);
-        const key = youtubeId ? `oembed:${youtubeId}` : oembedUrl;
-        const data = await dedupe.fetchWithDedupe(key, () => fetch(oembedUrl).then((r) => r.json()), 1000);
-        if (data && data.title) fetchedTitle = data.title;
-      }
-    } catch {}
     setError(null);
     const youtubeId = getYouTubeVideoId(rawUrl);
+    if (youtubeId) {
+      try {
+        const mod = await import('@/utils/isYouTubeVideoUrl');
+        const data = await mod.fetchOembedForVideo(youtubeId, rawUrl);
+        if (data && data.title) fetchedTitle = data.title;
+      } catch {
+        // fallback: try direct fetch
+        const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(rawUrl)}&format=json`;
+        try {
+          const res = await fetch(oembedUrl);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.title) fetchedTitle = data.title;
+          }
+        } catch {}
+      }
+    }
     if (!youtubeId) { setError('Only YouTube video URLs are supported.'); return; }
     // prevent duplicates by youtube id
     if (list.some((item) => item.youtubeId === youtubeId)) {
@@ -248,7 +252,7 @@ export default function App(): ReactElement {
           ))}
         </ul>
       </section>
-          </main>
+      </main>
     </SWRConfig>
   );
 }

@@ -34,29 +34,32 @@ export function getYouTubeVideoId(u: string): string | null {
   }
 }
 
+const localOembedCache = new Map<string, any>();
+const localInFlight = new Map<string, Promise<boolean>>();
+
+export function clearOembedCache() {
+  try { localOembedCache.clear(); } catch {}
+  try { localInFlight.clear(); } catch {}
+}
+
+export function getCachedOembed(videoId: string) {
+  try { return localOembedCache.get(videoId); } catch { return undefined; }
+}
+
 export async function isYouTubeVideoUrl(
   u: string,
-  options?: { useApi?: boolean; apiKey?: string },
+  options?: { useApi?: boolean; apiKey?: string; checkRemote?: boolean },
 ): Promise<boolean> {
   try {
     const videoId = getYouTubeVideoId(u);
     if (!videoId) return false;
 
-    // First try oEmbed (no API key required)
-    try {
-      const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(u)}&format=json`;
-      try {
-        // use provided fetchWithDedupe or SWR's mutate
-        // use SWR's mutate to leverage global cache/provider
-        const { mutate } = await import('swr');
-        const key = `oembed:${videoId}`;
-        const data = await mutate(key, () => fetch(oembedUrl).then((r) => r.json()));
-        if (data) return true;
-      } catch {
-        const res = await fetch(oembedUrl);
-        if (res.ok) return true;
-      }
-    } catch {}
+    // If caller only wants format check, skip remote validation
+    if (options && options.checkRemote === false) return true;
+
+    // Try oEmbed first (no API key required)
+    const data = await fetchOembedForVideo(videoId, u);
+    if (data) return true;
 
     // Fallback to YouTube Data API if requested
     if (options?.useApi && options.apiKey) {
@@ -67,8 +70,8 @@ export async function isYouTubeVideoUrl(
         )}`;
         const res = await fetch(apiUrl);
         if (!res.ok) return false;
-        const data = await res.json();
-        return Array.isArray(data.items) && data.items.length > 0;
+        const json = await res.json();
+        return Array.isArray(json.items) && json.items.length > 0;
       } catch {
         return false;
       }
@@ -77,5 +80,36 @@ export async function isYouTubeVideoUrl(
     return false;
   } catch {
     return false;
+  }
+}
+
+export async function fetchOembedForVideo(videoId: string, u: string): Promise<any | null> {
+  // quick cache
+  if (localOembedCache.has(videoId)) return localOembedCache.get(videoId);
+  if (localInFlight.has(videoId)) return await localInFlight.get(videoId) ? localOembedCache.get(videoId) : null;
+
+  const run = (async () => {
+    try {
+      const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(u)}&format=json`;
+      const res = await fetch(oembedUrl);
+      if (res.ok) {
+        const data = await res.json();
+        try { localOembedCache.set(videoId, data); } catch {}
+        return data;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  })();
+
+  // store a boolean Promise in localInFlight to signal in-flight; also set cache when done
+  const inFlight = run.then((d) => !!d);
+  localInFlight.set(videoId, inFlight);
+  try {
+    const data = await run;
+    return data;
+  } finally {
+    localInFlight.delete(videoId);
   }
 }
