@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState, type ReactElement } from "react";
-import { SWRConfig } from 'swr';
+import { SWRConfig } from "swr";
 
-import AddVideoForm from './components/AddVideoForm';
-
+import AddVideoForm from "./components/AddVideoForm";
 
 type Video = {
   id: string;
@@ -36,7 +35,12 @@ export default function App(): ReactElement {
   const [list, setList] = useState<Video[]>(() => {
     try {
       // in test environment, avoid persisting between test runs
-      if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'test') return [];
+      if (
+        typeof process !== "undefined" &&
+        process.env &&
+        process.env.NODE_ENV === "test"
+      )
+        return [];
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? (JSON.parse(raw) as Video[]) : [];
     } catch {
@@ -52,7 +56,6 @@ export default function App(): ReactElement {
     () => [...list].sort((a, b) => a.nextReview - b.nextReview),
     [list],
   );
-
 
   function remove(id: string) {
     setList((s) => s.filter((v) => v.id !== id));
@@ -86,95 +89,106 @@ export default function App(): ReactElement {
     <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 1000 }}>
       <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
         <h1>Loop Tube List</h1>
-      <section style={{ marginBottom: 20 }}>
-        <h2>Add video</h2>
-        {/* extracted form component handles validation, fetch, and UI errors */}
-        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-        {/* @ts-ignore */}
-        <AddVideoForm exists={(id)=> list.some((item)=>item.youtubeId===id)} onAdd={async ({ url: rawUrl, youtubeId, title }) => {
-          if (!youtubeId) return { success: false, error: 'Only YouTube video URLs are supported.' };
-          if (list.some((item) => item.youtubeId === youtubeId)) {
-            return { success: false, error: 'Video already in playlist.' };
-          }
-          const v: Video = {
-            id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
-            youtubeId,
-            title,
-            url: rawUrl,
-            createdAt: Date.now(),
-            reviewCount: 0,
-            nextReview: computeNextReview(0),
-          };
-          setList((s) => [v, ...s]);
-          return { success: true };
-        }} />
-      </section>
+        <section style={{ marginBottom: 20 }}>
+          <h2>Add video</h2>
+          {/* extracted form component handles validation, fetch, and UI errors */}
+          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+          {/* @ts-ignore */}
+          <AddVideoForm
+            exists={(id) => list.some((item) => item.youtubeId === id)}
+            onAdd={async ({ url: rawUrl, youtubeId, title }) => {
+              if (!youtubeId)
+                return {
+                  success: false,
+                  error: "Only YouTube video URLs are supported.",
+                };
+              if (list.some((item) => item.youtubeId === youtubeId)) {
+                return { success: false, error: "Video already in playlist." };
+              }
+              const v: Video = {
+                id:
+                  Date.now().toString(36) +
+                  Math.random().toString(36).slice(2, 8),
+                youtubeId,
+                title,
+                url: rawUrl,
+                createdAt: Date.now(),
+                reviewCount: 0,
+                nextReview: computeNextReview(0),
+              };
+              setList((s) => [v, ...s]);
+              return { success: true };
+            }}
+          />
+        </section>
 
-      <section>
-        <h2>Playlist ({list.length})</h2>
-        {sorted.length === 0 && <p>No videos yet. Add one above.</p>}
-        <ul
-          role="list"
-          aria-label="Playlist"
-          style={{ listStyle: "none", padding: 0 }}
-        >
-          {sorted.map((v) => (
-            <li
-              key={v.id}
-              style={{
-                padding: 12,
-                borderRadius: 8,
-                background: "white",
-                marginBottom: 8,
-                boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
-              }}
-            >
-              <div
+        <section>
+          <h2>Playlist ({list.length})</h2>
+          {sorted.length === 0 && <p>No videos yet. Add one above.</p>}
+          <ul
+            role="list"
+            aria-label="Playlist"
+            style={{ listStyle: "none", padding: 0 }}
+          >
+            {sorted.map((v) => (
+              <li
+                key={v.id}
                 style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 12,
+                  padding: 12,
+                  borderRadius: 8,
+                  background: "white",
+                  marginBottom: 8,
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
                 }}
               >
-                <div style={{ flex: 1 }}>
-                  <a
-                    href={v.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ fontWeight: 600 }}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <a
+                      href={v.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontWeight: 600 }}
+                    >
+                      {v.title}
+                    </a>
+                    <div style={{ fontSize: 12, color: "#444" }}>
+                      Reviews: {v.reviewCount} • Next:{" "}
+                      {new Date(v.nextReview).toLocaleString()}
+                    </div>
+                  </div>
+                  <div
+                    style={{ display: "flex", gap: 8, alignItems: "center" }}
                   >
-                    {v.title}
-                  </a>
-                  <div style={{ fontSize: 12, color: "#444" }}>
-                    Reviews: {v.reviewCount} • Next:{" "}
-                    {new Date(v.nextReview).toLocaleString()}
+                    <button
+                      onClick={() => markReviewed(v.id)}
+                      title="Mark reviewed"
+                    >
+                      Reviewed
+                    </button>
+                    <button
+                      onClick={() => resetSchedule(v.id)}
+                      title="Reset schedule"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      onClick={() => remove(v.id)}
+                      style={{ color: "crimson" }}
+                    >
+                      Remove
+                    </button>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                  <button
-                    onClick={() => markReviewed(v.id)}
-                    title="Mark reviewed"
-                  >
-                    Reviewed
-                  </button>
-                  <button
-                    onClick={() => resetSchedule(v.id)}
-                    title="Reset schedule"
-                  >
-                    Reset
-                  </button>
-                  <button
-                    onClick={() => remove(v.id)}
-                    style={{ color: "crimson" }}
-                  >
-                    Remove
-                  </button>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </section>
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
     </SWRConfig>
   );

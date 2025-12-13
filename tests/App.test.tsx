@@ -70,11 +70,18 @@ describe("App", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: 'Test Video' }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Test Video" }),
+      }) as any;
     await user.type(input, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
     await user.click(addButton);
     // wait for a listitem to appear
-    await within(screen.getByRole("list", { name: /playlist/i })).findByRole("listitem");
+    await within(screen.getByRole("list", { name: /playlist/i })).findByRole(
+      "listitem",
+    );
     expect(input.value).toBe("");
     expect(input).toHaveFocus();
     global.fetch = origFetch;
@@ -86,10 +93,17 @@ describe("App", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: 'Test Video' }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Test Video" }),
+      }) as any;
     await user.type(input, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
     await user.click(addButton);
-    await within(screen.getByRole("list", { name: /playlist/i })).findByRole("listitem");
+    await within(screen.getByRole("list", { name: /playlist/i })).findByRole(
+      "listitem",
+    );
     // try to add again using youtu.be short url
     await user.clear(input);
     await user.type(input, "https://youtu.be/dQw4w9WgXcQ");
@@ -107,12 +121,19 @@ describe("App", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: 'Test Video' }) });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Test Video" }),
+      });
     global.fetch = fetchMock as any;
-    const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+    const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
     await user.type(input, url);
     await user.click(addButton);
-    await within(screen.getByRole("list", { name: /playlist/i })).findByRole("listitem");
+    await within(screen.getByRole("list", { name: /playlist/i })).findByRole(
+      "listitem",
+    );
     // submit again quickly
     await user.clear(input);
     await user.type(input, url);
