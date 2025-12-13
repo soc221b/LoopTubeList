@@ -32,15 +32,19 @@ describe("App", () => {
     expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
   });
 
-  it("validates URL format", async () => {
+  it("invalid URL format is invalid", async () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i);
-    // invalid format
     await user.clear(input);
     await user.type(input, 'not-a-url');
     expect(input).toBeInvalid();
-    // valid format
+  });
+
+  it("valid URL format is valid", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const input = screen.getByLabelText(/YouTube URL/i);
     await user.clear(input);
     await user.type(input, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
     expect(input).toBeValid();
@@ -59,21 +63,27 @@ describe("App", () => {
     expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
   });
 
-  it("rejects non-video YouTube pages (homepage/channel)", async () => {
+  it("rejects YouTube homepage", async () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i);
     const addButton = screen.getByRole('button', { name: /add/i });
-    // homepage
     await user.type(input, 'https://www.youtube.com/');
     await user.click(addButton);
-    let alert = await screen.findByRole('alert');
+    const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent(/video/i);
-    // channel
-    await user.clear(input);
+    const list = screen.getByRole('list', { name: /playlist/i });
+    expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
+  });
+
+  it("rejects YouTube channel pages", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const input = screen.getByLabelText(/YouTube URL/i);
+    const addButton = screen.getByRole('button', { name: /add/i });
     await user.type(input, 'https://www.youtube.com/channel/UCabcdef');
     await user.click(addButton);
-    alert = await screen.findByRole('alert');
+    const alert = await screen.findByRole('alert');
     expect(alert).toHaveTextContent(/video/i);
     const list = screen.getByRole('list', { name: /playlist/i });
     expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
