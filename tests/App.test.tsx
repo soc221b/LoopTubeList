@@ -63,29 +63,5 @@ describe("App", () => {
     expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
   });
 
-  it("rejects YouTube homepage", async () => {
-    const user = userEvent.setup();
-    render(<App />);
-    const input = screen.getByLabelText(/YouTube URL/i);
-    const addButton = screen.getByRole('button', { name: /add/i });
-    await user.type(input, 'https://www.youtube.com/');
-    await user.click(addButton);
-    const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent(/video/i);
-    const list = screen.getByRole('list', { name: /playlist/i });
-    expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
-  });
 
-  it("rejects YouTube channel pages", async () => {
-    const user = userEvent.setup();
-    render(<App />);
-    const input = screen.getByLabelText(/YouTube URL/i);
-    const addButton = screen.getByRole('button', { name: /add/i });
-    await user.type(input, 'https://www.youtube.com/channel/UCabcdef');
-    await user.click(addButton);
-    const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent(/video/i);
-    const list = screen.getByRole('list', { name: /playlist/i });
-    expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
-  });
 });

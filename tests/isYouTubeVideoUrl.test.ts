@@ -49,4 +49,18 @@ describe('isYouTubeVideoUrl', () => {
     expect(res).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it('returns false for youtube channel page', async () => {
+    const res = await isYouTubeVideoUrl('https://www.youtube.com/channel/UCabcdef');
+    expect(res).toBe(false);
+  });
+
+  it('returns true for shorts and embed urls when oEmbed succeeds', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => mockFetchOnce(true, { title: 'Short' }));
+    global.fetch = fetchMock as any;
+    const res1 = await isYouTubeVideoUrl('https://www.youtube.com/shorts/dQw4w9WgXcQ');
+    const res2 = await isYouTubeVideoUrl('https://www.youtube.com/embed/dQw4w9WgXcQ');
+    expect(res1).toBe(true);
+    expect(res2).toBe(true);
+  });
 });
