@@ -15,6 +15,7 @@ This project is a static site to help users manage a list of YouTube videos that
 
 - Test-driven development MUST be followed, with tests written before implementation, and all tests MUST fail before implementation. After implementation, all tests MUST pass.
 - Follow React concepts: https://react.dev/
+- Follow React Testing Library concepts: https://testing-library.com/docs/
 - TypeScript strict mode, never use @ts-ignore, any or disable any strict options
 - Conventional Commits for commit messages
 - Semantic versioning for releases
