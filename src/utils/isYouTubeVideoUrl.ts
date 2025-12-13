@@ -1,24 +1,27 @@
-export async function isYouTubeVideoUrl(u: string, options?: { useApi?: boolean; apiKey?: string }): Promise<boolean> {
+export async function isYouTubeVideoUrl(
+  u: string,
+  options?: { useApi?: boolean; apiKey?: string },
+): Promise<boolean> {
   try {
-    const parsed = new URL(u.startsWith('http') ? u : `https://${u}`);
+    const parsed = new URL(u.startsWith("http") ? u : `https://${u}`);
     const host = parsed.hostname.toLowerCase();
     let videoId: string | null = null;
 
-    if (host === 'youtu.be') {
-      const id = parsed.pathname.replace(/^\//, '');
+    if (host === "youtu.be") {
+      const id = parsed.pathname.replace(/^\//, "");
       if (!id) return false;
       videoId = id;
-    } else if (host.endsWith('youtube.com')) {
+    } else if (host.endsWith("youtube.com")) {
       const p = parsed.pathname;
-      if (p === '/watch') {
-        const v = parsed.searchParams.get('v');
+      if (p === "/watch") {
+        const v = parsed.searchParams.get("v");
         if (!v) return false;
         videoId = v;
-      } else if (p.startsWith('/shorts/')) {
-        videoId = p.replace('/shorts/', '');
+      } else if (p.startsWith("/shorts/")) {
+        videoId = p.replace("/shorts/", "");
         if (!videoId) return false;
-      } else if (p.startsWith('/embed/')) {
-        videoId = p.replace('/embed/', '');
+      } else if (p.startsWith("/embed/")) {
+        videoId = p.replace("/embed/", "");
         if (!videoId) return false;
       } else {
         return false; // other youtube pages are not video urls

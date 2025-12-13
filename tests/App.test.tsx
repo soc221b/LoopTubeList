@@ -25,11 +25,11 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i);
-    const addButton = screen.getByRole('button', { name: /add/i });
-    await user.type(input, 'not-a-url');
+    const addButton = screen.getByRole("button", { name: /add/i });
+    await user.type(input, "not-a-url");
     await user.click(addButton);
-    const list = screen.getByRole('list', { name: /playlist/i });
-    expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
+    const list = screen.getByRole("list", { name: /playlist/i });
+    expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
   });
 
   it("invalid URL format is invalid", async () => {
@@ -37,7 +37,7 @@ describe("App", () => {
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i);
     await user.clear(input);
-    await user.type(input, 'not-a-url');
+    await user.type(input, "not-a-url");
     expect(input).toBeInvalid();
   });
 
@@ -46,7 +46,7 @@ describe("App", () => {
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i);
     await user.clear(input);
-    await user.type(input, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+    await user.type(input, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
     expect(input).toBeValid();
   });
 
@@ -54,14 +54,12 @@ describe("App", () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i);
-    const addButton = screen.getByRole('button', { name: /add/i });
-    await user.type(input, 'https://vimeo.com/123456');
+    const addButton = screen.getByRole("button", { name: /add/i });
+    await user.type(input, "https://vimeo.com/123456");
     await user.click(addButton);
-    const alert = await screen.findByRole('alert');
+    const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(/YouTube/i);
-    const list = screen.getByRole('list', { name: /playlist/i });
-    expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
+    const list = screen.getByRole("list", { name: /playlist/i });
+    expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
   });
-
-
 });

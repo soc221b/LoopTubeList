@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useState, type ReactElement, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ReactElement,
+  type FormEvent,
+} from "react";
 import { isYouTubeVideoUrl } from "@/utils/isYouTubeVideoUrl";
 
 type Video = {
@@ -55,11 +61,14 @@ export default function App(): ReactElement {
     const rawUrl = url.trim();
     // Validate using shared utility (may verify via oEmbed / YouTube Data API)
     const ok = await isYouTubeVideoUrl(rawUrl);
-    if (!ok) { setError('Only YouTube video URLs are supported.'); return; }
+    if (!ok) {
+      setError("Only YouTube video URLs are supported.");
+      return;
+    }
     let fetchedTitle = rawUrl;
     try {
       const res = await fetch(
-        `https://www.youtube.com/oembed?url=${encodeURIComponent(rawUrl)}&format=json`
+        `https://www.youtube.com/oembed?url=${encodeURIComponent(rawUrl)}&format=json`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -111,20 +120,38 @@ export default function App(): ReactElement {
       <h1>Loop Tube List</h1>
       <section style={{ marginBottom: 20 }}>
         <h2>Add video</h2>
-        <form onSubmit={handleSubmit} aria-label="Add video form" style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <label htmlFor="url-input" style={{ position: "absolute", left: -9999 }}>YouTube URL</label>
+        <form
+          onSubmit={handleSubmit}
+          aria-label="Add video form"
+          style={{ display: "flex", gap: 8, alignItems: "center" }}
+        >
+          <label
+            htmlFor="url-input"
+            style={{ position: "absolute", left: -9999 }}
+          >
+            YouTube URL
+          </label>
           <input
             id="url-input"
             type="url"
             placeholder="YouTube URL"
             value={url}
-            onChange={(e) => { setUrl(e.target.value); setError(null); }}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              setError(null);
+            }}
             style={{ flex: 1, padding: "8px" }}
             required
             aria-required="true"
             autoFocus
           />
-          <button type="submit" style={{ padding: "8px 12px" }} aria-label="Add video">Add</button>
+          <button
+            type="submit"
+            style={{ padding: "8px 12px" }}
+            aria-label="Add video"
+          >
+            Add
+          </button>
         </form>
         {error && (
           <div role="alert" style={{ color: "crimson", marginTop: 8 }}>
@@ -136,7 +163,11 @@ export default function App(): ReactElement {
       <section>
         <h2>Playlist ({list.length})</h2>
         {sorted.length === 0 && <p>No videos yet. Add one above.</p>}
-        <ul role="list" aria-label="Playlist" style={{ listStyle: "none", padding: 0 }}>
+        <ul
+          role="list"
+          aria-label="Playlist"
+          style={{ listStyle: "none", padding: 0 }}
+        >
           {sorted.map((v) => (
             <li
               key={v.id}

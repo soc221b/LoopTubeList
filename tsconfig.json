@@ -12,10 +12,10 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": "./",
-    "types": ["vitest/globals","node","react","react-dom"],
+    "types": ["vitest/globals", "node", "react", "react-dom"],
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src","tests"]
+  "include": ["src", "tests"]
 }
