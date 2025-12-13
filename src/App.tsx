@@ -29,6 +29,7 @@ function save(list: Video[]) {
 
 export default function App(): ReactElement {
   const [url, setUrl] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [list, setList] = useState<Video[]>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -53,7 +54,7 @@ export default function App(): ReactElement {
     const rawUrl = url.trim();
     // Only allow YouTube URLs (youtube.com, youtu.be, m.youtube.com)
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|m\.youtube\.com)\//i;
-    if (!youtubeRegex.test(rawUrl)) return;
+    if (!youtubeRegex.test(rawUrl)) { setError('Only YouTube URLs are supported.'); return; }
     let fetchedTitle = rawUrl;
     try {
       const res = await fetch(
@@ -64,6 +65,7 @@ export default function App(): ReactElement {
         if (data && data.title) fetchedTitle = data.title;
       }
     } catch {}
+    setError(null);
     const v: Video = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
       title: fetchedTitle,
@@ -116,7 +118,7 @@ export default function App(): ReactElement {
             type="url"
             placeholder="YouTube URL"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => { setUrl(e.target.value); setError(null); }}
             style={{ flex: 1, padding: "8px" }}
             required
             aria-required="true"
@@ -124,6 +126,11 @@ export default function App(): ReactElement {
           />
           <button type="submit" style={{ padding: "8px 12px" }} aria-label="Add video">Add</button>
         </form>
+        {error && (
+          <div role="alert" style={{ color: "crimson", marginTop: 8 }}>
+            {error}
+          </div>
+        )}
       </section>
 
       <section>
