@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactElement, type FormEvent } from "react";
+import { isYouTubeVideoUrl } from "@/utils/isYouTubeVideoUrl";
 
 type Video = {
   id: string;
@@ -52,27 +53,9 @@ export default function App(): ReactElement {
     e?.preventDefault();
     if (!url.trim()) return;
     const rawUrl = url.trim();
-    // Only allow YouTube video URLs (watch?v=, youtu.be/, shorts/, embed/)
-    function isYouTubeVideoUrl(u: string) {
-      try {
-        const parsed = new URL(u.startsWith('http') ? u : `https://${u}`);
-        const host = parsed.hostname.toLowerCase();
-        if (host === 'youtu.be') {
-          const id = parsed.pathname.replace(/^\//, '');
-          return id.length > 0;
-        }
-        if (host.endsWith('youtube.com')) {
-          const p = parsed.pathname;
-          if (p === '/watch') return parsed.searchParams.has('v') && !!parsed.searchParams.get('v');
-          if (p.startsWith('/shorts/') || p.startsWith('/embed/')) return true;
-          return false;
-        }
-        return false;
-      } catch {
-        return false;
-      }
-    }
-    if (!isYouTubeVideoUrl(rawUrl)) { setError('Only YouTube video URLs are supported.'); return; }
+    // Validate using shared utility (may verify via oEmbed / YouTube Data API)
+    const ok = await isYouTubeVideoUrl(rawUrl);
+    if (!ok) { setError('Only YouTube video URLs are supported.'); return; }
     let fetchedTitle = rawUrl;
     try {
       const res = await fetch(
@@ -93,7 +76,6 @@ export default function App(): ReactElement {
       nextReview: computeNextReview(0),
     };
     setList((s) => [v, ...s]);
-    setUrl("");
   }
 
   function remove(id: string) {
