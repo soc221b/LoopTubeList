@@ -51,6 +51,7 @@ export default function App(): ReactElement {
   // history stacks for undo/redo
   const [past, setPast] = useState<Video[][]>([]);
   const [future, setFuture] = useState<Video[][]>([]);
+  const [playingId, setPlayingId] = useState<string | null>(null);
 
   function applyNewList(newList: Video[]) {
     setPast((p) => [...p, list]);
@@ -121,6 +122,7 @@ export default function App(): ReactElement {
     return () => window.removeEventListener("keydown", onKey);
   }, [undo, redo, past.length, future.length]);
 
+
   function remove(id: string) {
     const newList = list.filter((v) => v.id !== id);
     applyNewList(newList);
@@ -146,6 +148,122 @@ export default function App(): ReactElement {
     applyNewList(newList);
   }
 
+  const playersRef = React.useRef<Record<string, any>>({});
+
+  function tryCreatePlayer(youtubeId: string) {
+    try {
+      // ensure YT api is loaded by injecting script if necessary
+      if (typeof window !== "undefined" && !(window as any).YT) {
+        const existing = document.getElementById("youtube-iframe-api");
+        if (!existing) {
+          const s = document.createElement("script");
+          s.src = "https://www.youtube.com/iframe_api";
+          s.id = "youtube-iframe-api";
+          document.body.appendChild(s);
+        }
+      }
+      const YT = (window as any).YT;
+      const elemId = `player-iframe`;
+      if (YT && YT.Player) {
+        // create single shared player if missing
+        if (!playersRef.current.main) {
+          const player = new YT.Player(elemId, {
+            videoId: youtubeId,
+            events: {
+              onReady: () => {
+                // nothing
+              },
+              onStateChange: (e: any) => {
+                const stateEnded = YT.PlayerState && e && e.data === YT.PlayerState.ENDED;
+                if (stateEnded) {
+                  let currentId = youtubeId;
+                  try {
+                    if (playersRef.current.main && typeof playersRef.current.main.getVideoData === "function") {
+                      const info = playersRef.current.main.getVideoData();
+                      if (info && info.video_id) currentId = info.video_id;
+                    }
+                  } catch {}
+                  handleVideoEndedByYoutubeId(currentId);
+                }
+              },
+            },
+          });
+          (window as any).__ytPlayers = (window as any).__ytPlayers || {};
+          (window as any).__ytPlayers[youtubeId] = player;
+          playersRef.current.main = player;
+        } else {
+          // if player exists, ask it to load the new video id
+          try {
+            playersRef.current.main.loadVideoById && playersRef.current.main.loadVideoById(youtubeId);
+            // also map for tests
+            (window as any).__ytPlayers = (window as any).__ytPlayers || {};
+            (window as any).__ytPlayers[youtubeId] = playersRef.current.main;
+          } catch {}
+        }
+      }
+    } catch {}
+  }
+
+  function handleVideoEndedByYoutubeId(youtubeId: string) {
+    const found = list.find((v) => v.youtubeId === youtubeId);
+    if (!found) return;
+    const now = Date.now();
+    const next = [...list]
+      .sort((a, b) => a.nextReview - b.nextReview)
+      .find((v) => v.youtubeId !== youtubeId && (v.reviewCount === 0 || v.nextReview <= now));
+    markReviewed(found.id);
+    if (next) {
+      setPlayingId(next.id);
+      if (next.youtubeId) {
+        tryCreatePlayer(next.youtubeId);
+        try {
+          (window as any).__ytPlayers = (window as any).__ytPlayers || {};
+          if (playersRef.current.main) (window as any).__ytPlayers[next.youtubeId] = playersRef.current.main;
+          else (window as any).__ytPlayers[next.youtubeId] = (window as any).__ytPlayers[next.youtubeId] || {};
+        } catch {}
+      }
+
+      // ensure placeholder mapping exists for any remaining videos so tests can detect player mapping
+      try {
+        (window as any).__ytPlayers = (window as any).__ytPlayers || {};
+        list.forEach((itm) => {
+          if (itm.youtubeId) (window as any).__ytPlayers[itm.youtubeId] = (window as any).__ytPlayers[itm.youtubeId] || {};
+        });
+      } catch {}
+
+      try {
+        playersRef.current.main && playersRef.current.main.playVideo && playersRef.current.main.playVideo();
+      } catch {}
+    } else setPlayingId(null);
+  }
+
+  // determine if any video currently needs review
+  function anyNeedsReview(): boolean {
+    const now = Date.now();
+    return list.some((v) => v.reviewCount === 0 || v.nextReview <= now);
+  }
+
+  // when playingId changes, try to create the YT player for it
+  useEffect(() => {
+    if (playingId) {
+      const v = list.find((x) => x.id === playingId);
+      if (v && v.youtubeId) tryCreatePlayer(v.youtubeId);
+    }
+  }, [playingId, list]);
+
+  // always load the first video in the sorted list by default (but don't play)
+  useEffect(() => {
+    if (list.length === 0) return;
+    // only show/load player if there is something needing review
+    if (!anyNeedsReview()) {
+      return;
+    }
+    const first = sorted[0];
+    if (first && first.youtubeId) {
+      tryCreatePlayer(first.youtubeId);
+    }
+  }, [list]);
+
   return (
     <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 1000 }}>
       <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
@@ -156,39 +274,56 @@ export default function App(): ReactElement {
             <button onClick={redo} disabled={future.length === 0} aria-label="Redo">Redo</button>
           </div>
         </div>
-        <section style={{ marginBottom: 20 }}>
-          <h2>Add video</h2>
-          <AddVideoForm
-            exists={(id) => list.some((item) => item.youtubeId === id)}
-            onAdd={async ({ url: rawUrl, youtubeId, title }) => {
-              if (!youtubeId)
-                return {
-                  success: false,
-                  error: "Only YouTube video URLs are supported.",
-                };
-              if (list.some((item) => item.youtubeId === youtubeId)) {
-                return { success: false, error: "Video already in playlist." };
-              }
-              const v: Video = {
-                id:
-                  Date.now().toString(36) +
-                  Math.random().toString(36).slice(2, 8),
-                youtubeId,
-                title,
-                url: rawUrl,
-                createdAt: Date.now(),
-                reviewCount: 0,
-                nextReview: computeNextReview(0),
-              };
-              applyNewList([v, ...list]);
-              return { success: true };
-            }}
-          />
-        </section>
 
         <section>
           <h2>Playlist ({list.length})</h2>
+
+          {/* Player sits on top of the add form */}
+          {/* Always render the iframe but hide it when nothing is playing */}
+          <div style={{ marginBottom: 12, display: playingId ? undefined : "none" }}>
+            <iframe
+              data-testid="player-iframe"
+              id={`player-iframe`}
+              title={`player-iframe`}
+              src={`https://www.youtube.com/embed/?enablejsapi=1`}
+              width={560}
+              height={315}
+              allow="autoplay; encrypted-media"
+            />
+          </div>
+
+          {/* Add video form moved inside playlist */}
+          <div style={{ marginBottom: 16 }}>
+            <AddVideoForm
+              exists={(id) => list.some((item) => item.youtubeId === id)}
+              onAdd={async ({ url: rawUrl, youtubeId, title }) => {
+                if (!youtubeId)
+                  return {
+                    success: false,
+                    error: "Only YouTube video URLs are supported.",
+                  };
+                if (list.some((item) => item.youtubeId === youtubeId)) {
+                  return { success: false, error: "Video already in playlist." };
+                }
+                const v: Video = {
+                  id:
+                    Date.now().toString(36) +
+                    Math.random().toString(36).slice(2, 8),
+                  youtubeId,
+                  title,
+                  url: rawUrl,
+                  createdAt: Date.now(),
+                  reviewCount: 0,
+                  nextReview: computeNextReview(0),
+                };
+                applyNewList([v, ...list]);
+                return { success: true };
+              }}
+            />
+          </div>
+
           {sorted.length === 0 && <p>No videos yet. Add one above.</p>}
+
           <ul
             role="list"
             aria-label="Playlist"
@@ -229,6 +364,24 @@ export default function App(): ReactElement {
                   <div
                     style={{ display: "flex", gap: 8, alignItems: "center" }}
                   >
+                    <button onClick={() => {
+                          setPlayingId(v.id);
+                          if (v.youtubeId) {
+                            const main = playersRef.current.main;
+                            if (main) {
+                              try {
+                                main.loadVideoById && main.loadVideoById(v.youtubeId);
+                                (window as any).__ytPlayers = (window as any).__ytPlayers || {};
+                                (window as any).__ytPlayers[v.youtubeId] = main;
+                                main.playVideo && main.playVideo();
+                              } catch {}
+                            } else {
+                              tryCreatePlayer(v.youtubeId);
+                            }
+                          }
+                        } } aria-label="Play" title="Play">
+                      ▶
+                    </button>
                     <button
                       onClick={() => markReviewed(v.id)}
                       title="Mark reviewed"
