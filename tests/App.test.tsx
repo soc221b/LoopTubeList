@@ -45,14 +45,15 @@ describe("App", () => {
     expect(input).toBeValid();
   });
 
-  it("adds non-YouTube URL and falls back to raw URL title", async () => {
+  it("rejects non-YouTube URLs", async () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i);
     const addButton = screen.getByRole('button', { name: /add/i });
     await user.type(input, 'https://vimeo.com/123456');
     await user.click(addButton);
-    await screen.findByText(/Watchlist \(1\)/i);
-    expect(await screen.findByText('https://vimeo.com/123456')).toBeInTheDocument();
+    // should not be added
+    expect(screen.getByText(/Watchlist \(0\)/i)).toBeInTheDocument();
+    expect(screen.queryByText('https://vimeo.com/123456')).not.toBeInTheDocument();
   });
 });

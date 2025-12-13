@@ -51,6 +51,9 @@ export default function App(): ReactElement {
     e?.preventDefault();
     if (!url.trim()) return;
     const rawUrl = url.trim();
+    // Only allow YouTube URLs (youtube.com, youtu.be, m.youtube.com)
+    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|m\.youtube\.com)\//i;
+    if (!youtubeRegex.test(rawUrl)) return;
     let fetchedTitle = rawUrl;
     try {
       const res = await fetch(
