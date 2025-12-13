@@ -23,6 +23,39 @@ main {
   padding: 0 16px;
 }
 
+/* Header */
+main > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+main h1 {
+  font-size: 20px;
+  margin: 0;
+  color: var(--fg);
+}
+
+/* Toolbar buttons (Undo/Redo) to match GitHub subtle buttons */
+button[aria-label="Undo"], button[aria-label="Redo"] {
+  background: #fafbfc;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+}
+button[aria-label="Undo"]:hover, button[aria-label="Redo"]:hover {
+  background: #f3f4f6;
+  color: var(--fg);
+}
+button[aria-label="Undo"]:disabled, button[aria-label="Redo"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* GitHub-like form styles */
 form[aria-label="Add video form"] {
   display: flex;
@@ -86,6 +119,9 @@ ul[role="list"] li button {
   color: var(--github-blue);
   cursor: pointer;
 }
+
+/* Metadata and muted text */
+.meta { color: var(--muted); font-size: 13px; }
 
 [role="alert"] { color: #cf222e; }
 
