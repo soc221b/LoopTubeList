@@ -52,9 +52,27 @@ export default function App(): ReactElement {
     e?.preventDefault();
     if (!url.trim()) return;
     const rawUrl = url.trim();
-    // Only allow YouTube URLs (youtube.com, youtu.be, m.youtube.com)
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|m\.youtube\.com)\//i;
-    if (!youtubeRegex.test(rawUrl)) { setError('Only YouTube URLs are supported.'); return; }
+    // Only allow YouTube video URLs (watch?v=, youtu.be/, shorts/, embed/)
+    function isYouTubeVideoUrl(u: string) {
+      try {
+        const parsed = new URL(u.startsWith('http') ? u : `https://${u}`);
+        const host = parsed.hostname.toLowerCase();
+        if (host === 'youtu.be') {
+          const id = parsed.pathname.replace(/^\//, '');
+          return id.length > 0;
+        }
+        if (host.endsWith('youtube.com')) {
+          const p = parsed.pathname;
+          if (p === '/watch') return parsed.searchParams.has('v') && !!parsed.searchParams.get('v');
+          if (p.startsWith('/shorts/') || p.startsWith('/embed/')) return true;
+          return false;
+        }
+        return false;
+      } catch {
+        return false;
+      }
+    }
+    if (!isYouTubeVideoUrl(rawUrl)) { setError('Only YouTube video URLs are supported.'); return; }
     let fetchedTitle = rawUrl;
     try {
       const res = await fetch(
