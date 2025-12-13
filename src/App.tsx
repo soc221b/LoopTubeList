@@ -83,6 +83,28 @@ export default function App(): ReactElement {
     [list],
   );
 
+  // keyboard shortcuts for undo/redo
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const key = (e.key || "").toLowerCase();
+      const ctrl = e.ctrlKey || e.metaKey;
+      if (!ctrl) return;
+      // Ctrl/Cmd+Z => undo (without shift)
+      if (!e.shiftKey && key === "z") {
+        e.preventDefault();
+        undo();
+        return;
+      }
+      // Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y => redo
+      if ((e.shiftKey && key === "z") || key === "y") {
+        e.preventDefault();
+        redo();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [undo, redo, past.length, future.length]);
+
   function remove(id: string) {
     const newList = list.filter((v) => v.id !== id);
     applyNewList(newList);
