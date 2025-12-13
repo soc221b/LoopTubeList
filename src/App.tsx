@@ -48,6 +48,32 @@ export default function App(): ReactElement {
     }
   });
 
+  // history stacks for undo/redo
+  const [past, setPast] = useState<Video[][]>([]);
+  const [future, setFuture] = useState<Video[][]>([]);
+
+  function applyNewList(newList: Video[]) {
+    setPast((p) => [...p, list]);
+    setFuture([]);
+    setList(newList);
+  }
+
+  function undo() {
+    if (past.length === 0) return;
+    const previous = past[past.length - 1];
+    setPast((p) => p.slice(0, p.length - 1));
+    setFuture((f) => [list, ...f]);
+    setList(previous);
+  }
+
+  function redo() {
+    if (future.length === 0) return;
+    const next = future[0];
+    setFuture((f) => f.slice(1));
+    setPast((p) => [...p, list]);
+    setList(next);
+  }
+
   useEffect(() => {
     save(list);
   }, [list]);
@@ -58,37 +84,40 @@ export default function App(): ReactElement {
   );
 
   function remove(id: string) {
-    setList((s) => s.filter((v) => v.id !== id));
+    const newList = list.filter((v) => v.id !== id);
+    applyNewList(newList);
   }
 
   function markReviewed(id: string) {
-    setList((s) =>
-      s.map((v) => {
-        if (v.id !== id) return v;
-        const nextCount = v.reviewCount + 1;
-        return {
-          ...v,
-          reviewCount: nextCount,
-          nextReview: computeNextReview(nextCount),
-        };
-      }),
-    );
+    const newList = list.map((v) => {
+      if (v.id !== id) return v;
+      const nextCount = v.reviewCount + 1;
+      return {
+        ...v,
+        reviewCount: nextCount,
+        nextReview: computeNextReview(nextCount),
+      };
+    });
+    applyNewList(newList);
   }
 
   function resetSchedule(id: string) {
-    setList((s) =>
-      s.map((v) =>
-        v.id !== id
-          ? v
-          : { ...v, reviewCount: 0, nextReview: computeNextReview(0) },
-      ),
+    const newList = list.map((v) =>
+      v.id !== id ? v : { ...v, reviewCount: 0, nextReview: computeNextReview(0) },
     );
+    applyNewList(newList);
   }
 
   return (
     <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 1000 }}>
       <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
-        <h1>Loop Tube List</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h1 style={{ margin: 0 }}>Loop Tube List</h1>
+          <div style={{ marginLeft: 12 }}>
+            <button onClick={undo} disabled={past.length === 0} aria-label="Undo" style={{ marginRight: 8 }}>Undo</button>
+            <button onClick={redo} disabled={future.length === 0} aria-label="Redo">Redo</button>
+          </div>
+        </div>
         <section style={{ marginBottom: 20 }}>
           <h2>Add video</h2>
           <AddVideoForm
@@ -113,7 +142,7 @@ export default function App(): ReactElement {
                 reviewCount: 0,
                 nextReview: computeNextReview(0),
               };
-              setList((s) => [v, ...s]);
+              applyNewList([v, ...list]);
               return { success: true };
             }}
           />
