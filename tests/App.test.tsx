@@ -108,6 +108,8 @@ describe("App", () => {
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
     // ensure no cached oEmbed results remain from prior tests
+    const cacheMod = await import('@/utils/clearDedupeCache');
+    if (cacheMod && cacheMod.clearDedupeCache) cacheMod.clearDedupeCache();
     const resMod = await import('@/utils/clearDedupeResults');
     if (resMod && resMod.clearDedupeResults) resMod.clearDedupeResults();
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: 'Test Video' }) });
