@@ -4,24 +4,23 @@ import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import App from "@/App";
 
-describe("keyboard shortcuts", () => {
-  it("supports undo/redo via keyboard (Ctrl/Cmd+Z, Ctrl/Cmd+Y, Ctrl/Cmd+Shift+Z)", async () => {
+describe("keyboard redo (Windows/Linux)", () => {
+  it("redoes via Ctrl+Y and Ctrl+Shift+Z", async () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
 
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "KB Test" }) }) as any;
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "KB Redo Win" }) }) as any;
 
-    // add an item
-    await user.type(input, "https://www.youtube.com/watch?v=kb111");
+    await user.type(input, "https://www.youtube.com/watch?v=rwin111");
     await user.click(addButton);
     const list = screen.getByRole("list", { name: /playlist/i });
     await within(list).findByRole("listitem");
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
 
-    // undo via Ctrl+Z
+    // undo
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
 
@@ -29,8 +28,8 @@ describe("keyboard shortcuts", () => {
     fireEvent.keyDown(window, { key: "y", ctrlKey: true });
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
 
-    // undo via Meta+Z (Mac)
-    fireEvent.keyDown(window, { key: "z", metaKey: true });
+    // undo again
+    fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
 
     // redo via Ctrl+Shift+Z
