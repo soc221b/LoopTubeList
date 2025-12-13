@@ -25,3 +25,7 @@ export async function fetchWithDedupe<T = any>(
   promises.set(key, { ts: now, p });
   return p;
 }
+
+export function clearDedupeCache() {
+  promises.clear();
+}

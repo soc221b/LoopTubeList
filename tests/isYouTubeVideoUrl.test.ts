@@ -10,9 +10,11 @@ describe("isYouTubeVideoUrl", () => {
   beforeEach(() => {
     origFetch = global.fetch;
   });
-  afterEach(() => {
+  afterEach(async () => {
     global.fetch = origFetch;
     vi.resetAllMocks();
+    const mod = await import('@/utils/dedupeFetcher');
+    if (mod && mod.clearDedupeCache) mod.clearDedupeCache();
   });
 
   it("returns true for a valid watch URL when oEmbed succeeds", async () => {
@@ -82,5 +84,18 @@ describe("isYouTubeVideoUrl", () => {
     );
     expect(res1).toBe(true);
     expect(res2).toBe(true);
+  });
+
+  it("does not call oEmbed twice within 1s for same url", async () => {
+    const fetchMock = vi.fn().mockImplementation(() => mockFetchOnce(true, { title: "Video" }));
+    global.fetch = fetchMock as any;
+    const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+    const p1 = isYouTubeVideoUrl(url);
+    const p2 = isYouTubeVideoUrl(url);
+    const [r1, r2] = await Promise.all([p1, p2]);
+    expect(r1).toBe(true);
+    expect(r2).toBe(true);
+    // fetch should have been called only once due to dedupeFetcher
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

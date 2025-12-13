@@ -45,8 +45,15 @@ export async function isYouTubeVideoUrl(
     // First try oEmbed (no API key required)
     try {
       const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(u)}&format=json`;
-      const res = await fetch(oembedUrl);
-      if (res.ok) return true;
+      try {
+        // use local dedupe helper to avoid duplicate calls within short interval
+        const { fetchWithDedupe } = await import('@/utils/dedupeFetcher');
+        const data = await fetchWithDedupe(oembedUrl, () => fetch(oembedUrl).then((r) => r.json()), 1000);
+        if (data) return true;
+      } catch {
+        const res = await fetch(oembedUrl);
+        if (res.ok) return true;
+      }
     } catch {}
 
     // Fallback to YouTube Data API if requested
