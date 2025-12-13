@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, type ReactElement } from "react";
 import { SWRConfig } from "swr";
 
-import AddVideoForm from "./components/AddVideoForm";
+import AddVideoForm from "@/components/AddVideoForm";
 
 type Video = {
   id: string;
@@ -91,9 +91,6 @@ export default function App(): ReactElement {
         <h1>Loop Tube List</h1>
         <section style={{ marginBottom: 20 }}>
           <h2>Add video</h2>
-          {/* extracted form component handles validation, fetch, and UI errors */}
-          {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-          {/* @ts-ignore */}
           <AddVideoForm
             exists={(id) => list.some((item) => item.youtubeId === id)}
             onAdd={async ({ url: rawUrl, youtubeId, title }) => {

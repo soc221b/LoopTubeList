@@ -5,10 +5,9 @@ import {
   getYouTubeVideoId,
 } from "@/utils/isYouTubeVideoUrl";
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) =>
-    r.ok ? r.json() : Promise.reject(new Error("not ok")),
-  );
+type OEmbed = { title?: string; [k: string]: unknown };
+const fetcher = (url: string): Promise<OEmbed> =>
+  fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(new Error("not ok"))));
 
 export default function AddVideoForm({
   onAdd,
@@ -65,7 +64,7 @@ export default function AddVideoForm({
     setLoading(true);
     setPendingId(youtubeId);
     try {
-      let data: any | null = null;
+      let data: OEmbed | null = null;
       try {
         data = await mutate(
           key,
