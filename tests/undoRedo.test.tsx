@@ -64,6 +64,24 @@ describe("undo/redo", () => {
     global.fetch = origFetch;
   });
 
+  it("disables reset when reviews is 0", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
+    const addButton = screen.getByRole("button", { name: /add/i });
+    const origFetch = global.fetch;
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "NoReset Test" }) }) as any;
+
+    await user.type(input, "https://www.youtube.com/watch?v=noreset1");
+    await user.click(addButton);
+    const list = await screen.findByRole("list", { name: /playlist/i });
+    const item = await within(list).findByRole("listitem");
+    const resetBtn = within(item).getByRole("button", { name: /reset/i });
+    expect(resetBtn).toBeDisabled();
+
+    global.fetch = origFetch;
+  });
+
   it("undoes and redoes reset", async () => {
     const user = userEvent.setup();
     render(<App />);

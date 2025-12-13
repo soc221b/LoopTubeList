@@ -238,6 +238,7 @@ export default function App(): ReactElement {
                     <button
                       onClick={() => resetSchedule(v.id)}
                       title="Reset schedule"
+                      disabled={v.reviewCount === 0}
                     >
                       Reset
                     </button>
