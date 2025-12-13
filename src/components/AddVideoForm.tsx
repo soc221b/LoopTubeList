@@ -66,7 +66,7 @@ export default function AddVideoForm({
     try {
       let data: OEmbed | null = null;
       try {
-        data = await mutate(
+        const res = await mutate(
           key,
           () => {
             const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(raw)}&format=json`;
@@ -74,6 +74,7 @@ export default function AddVideoForm({
           },
           { revalidate: true },
         );
+        data = res ?? null;
       } catch {
         try {
           const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(raw)}&format=json`;
