@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "@/App";
 
@@ -28,7 +28,8 @@ describe("App", () => {
     const addButton = screen.getByRole('button', { name: /add/i });
     await user.type(input, 'not-a-url');
     await user.click(addButton);
-    expect(screen.getByText(/Watchlist \(0\)/i)).toBeInTheDocument();
+    const list = screen.getByRole('list', { name: /watchlist/i });
+    expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
   });
 
   it("validates URL format", async () => {
@@ -53,7 +54,8 @@ describe("App", () => {
     await user.type(input, 'https://vimeo.com/123456');
     await user.click(addButton);
     // should not be added
-    expect(screen.getByText(/Watchlist \(0\)/i)).toBeInTheDocument();
+    const list = screen.getByRole('list', { name: /watchlist/i });
+    expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
     expect(screen.queryByText('https://vimeo.com/123456')).not.toBeInTheDocument();
   });
 });
