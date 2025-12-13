@@ -62,12 +62,20 @@ export default function App(): ReactElement {
       return;
     }
     let fetchedTitle = rawUrl;
+    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(rawUrl)}&format=json`;
     try {
-      const res = await fetch(
-        `https://www.youtube.com/oembed?url=${encodeURIComponent(rawUrl)}&format=json`,
-      );
-      if (res.ok) {
-        const data = await res.json();
+      // prefer SWR if available to leverage deduplication; otherwise use local dedupe
+      try {
+        // dynamic import via eval to avoid bundler static analysis when `swr` isn't installed
+        // eslint-disable-next-line no-eval
+        const swr = await eval('import("swr")');
+        // use mutate to fetch and populate cache; deduplication is handled by SWRConfig if present
+        const data = await swr.mutate(oembedUrl, () => fetch(oembedUrl).then((r) => r.json()));
+        if (data && data.title) fetchedTitle = data.title;
+      } catch {
+        // SWR not available, use local dedupe
+        const { fetchWithDedupe } = await import('@/utils/dedupeFetcher');
+        const data = await fetchWithDedupe(oembedUrl, () => fetch(oembedUrl).then((r) => r.json()), 1000);
         if (data && data.title) fetchedTitle = data.title;
       }
     } catch {}
