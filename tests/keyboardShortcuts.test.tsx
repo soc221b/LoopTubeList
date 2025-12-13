@@ -20,6 +20,9 @@ describe("keyboard shortcuts", () => {
     await within(list).findByRole("listitem");
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
 
+    // ensure input is not focused so app-level undo applies
+    input.blur();
+
     // Ctrl+Z
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
@@ -41,6 +44,9 @@ describe("keyboard shortcuts", () => {
     const list = screen.getByRole("list", { name: /playlist/i });
     await within(list).findByRole("listitem");
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
+
+    // ensure input is not focused so app-level undo applies
+    input.blur();
 
     // Meta+Z
     fireEvent.keyDown(window, { key: "z", metaKey: true });
@@ -65,6 +71,7 @@ describe("keyboard shortcuts", () => {
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
 
     // undo
+    input.blur();
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
 
@@ -99,6 +106,7 @@ describe("keyboard shortcuts", () => {
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
 
     // undo
+    input.blur();
     fireEvent.keyDown(window, { key: "z", metaKey: true });
     expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
 

@@ -86,6 +86,22 @@ export default function App(): ReactElement {
   // keyboard shortcuts for undo/redo
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      // If an input-like element is focused, let the browser handle undo/redo for the text field.
+      const active = (typeof document !== 'undefined' && document.activeElement) as
+        | Element
+        | null;
+      if (active) {
+        const tag = active.tagName;
+        // Treat INPUT, TEXTAREA or any contentEditable element as editable.
+        if (
+          tag === "INPUT" ||
+          tag === "TEXTAREA" ||
+          (active as HTMLElement).isContentEditable
+        ) {
+          return;
+        }
+      }
+
       const key = (e.key || "").toLowerCase();
       const ctrl = e.ctrlKey || e.metaKey;
       if (!ctrl) return;
