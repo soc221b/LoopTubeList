@@ -47,7 +47,7 @@ button[aria-label="Undo"], button[aria-label="Redo"] {
   font-size: 13px;
   cursor: pointer;
 }
-button[aria-label="Undo"]:hover, button[aria-label="Redo"]:hover {
+button[aria-label="Undo"]:not(:disabled):hover, button[aria-label="Redo"]:not(:disabled):hover {
   background: #f3f4f6;
   color: var(--fg);
 }
