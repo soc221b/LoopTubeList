@@ -114,4 +114,17 @@ describe("isYouTubeVideoUrl", () => {
     expect(r2).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
+
+  it("shares cached response for different urls with same youtube id", async () => {
+    const fetchMock = vi.fn().mockImplementation(() => mockFetchOnce(true, { title: "Video" }));
+    global.fetch = fetchMock as any;
+    const url1 = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+    const url2 = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley';
+    const p1 = isYouTubeVideoUrl(url1);
+    const p2 = isYouTubeVideoUrl(url2);
+    const [r1, r2] = await Promise.all([p1, p2]);
+    expect(r1).toBe(true);
+    expect(r2).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
