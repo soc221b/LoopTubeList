@@ -13,4 +13,10 @@ describe("App", () => {
     const input = screen.getByLabelText(/YouTube URL/i);
     expect(input).toHaveFocus();
   });
+
+  it("requires the URL input", () => {
+    render(<App />);
+    const input = screen.getByLabelText(/YouTube URL/i);
+    expect(input).toBeRequired();
+  });
 });
