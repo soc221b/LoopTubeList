@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type ReactElement,
-  type FormEvent,
-} from "react";
+import { useEffect, useMemo, useState, useRef, type ReactElement, type FormEvent } from "react";
 import { isYouTubeVideoUrl } from "@/utils/isYouTubeVideoUrl";
 
 type Video = {
@@ -37,6 +31,7 @@ function save(list: Video[]) {
 export default function App(): ReactElement {
   const [url, setUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const [list, setList] = useState<Video[]>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -85,6 +80,8 @@ export default function App(): ReactElement {
       nextReview: computeNextReview(0),
     };
     setList((s) => [v, ...s]);
+    setUrl("");
+    inputRef.current?.focus();
   }
 
   function remove(id: string) {
@@ -132,6 +129,7 @@ export default function App(): ReactElement {
             YouTube URL
           </label>
           <input
+            ref={inputRef}
             id="url-input"
             type="url"
             placeholder="YouTube URL"
