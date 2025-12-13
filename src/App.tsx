@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useRef, type ReactElement, type FormEvent } from "react";
 import { isYouTubeVideoUrl, getYouTubeVideoId } from "@/utils/isYouTubeVideoUrl";
-import CacheOrSWRProvider from "@/contexts/CacheOrSWRProvider";
-import { createFetchWithDedupe } from "@/utils/fetchWithDedupe";
+import { SWRConfig } from 'swr';
+
 
 type Video = {
   id: string;
@@ -136,14 +136,10 @@ export default function App(): ReactElement {
     );
   }
 
-  const dedupe = useMemo(() => createFetchWithDedupe(), []);
-
   return (
-    <>
-      {/* Use SWR cache provider when available; fallback to local dedupe instance */}
-      <CacheOrSWRProvider>
-        <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
-          <h1>Loop Tube List</h1>
+    <SWRConfig value={{ provider: () => new Map() }}>
+      <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
+        <h1>Loop Tube List</h1>
       <section style={{ marginBottom: 20 }}>
         <h2>Add video</h2>
         <form
@@ -252,8 +248,7 @@ export default function App(): ReactElement {
           ))}
         </ul>
       </section>
-        </main>
-      </CacheOrSWRProvider>
-    </>
+          </main>
+    </SWRConfig>
   );
 }

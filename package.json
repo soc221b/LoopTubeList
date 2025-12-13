@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "swr": "0.0.0-placeholder"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "6.9.1",
