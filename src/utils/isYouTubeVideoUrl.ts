@@ -37,7 +37,6 @@ export function getYouTubeVideoId(u: string): string | null {
 export async function isYouTubeVideoUrl(
   u: string,
   options?: { useApi?: boolean; apiKey?: string },
-  fetchWithDedupe?: (key: string, fetcher: () => Promise<any>, intervalMs?: number) => Promise<any>,
 ): Promise<boolean> {
   try {
     const videoId = getYouTubeVideoId(u);
@@ -48,17 +47,11 @@ export async function isYouTubeVideoUrl(
       const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(u)}&format=json`;
       try {
         // use provided fetchWithDedupe or SWR's mutate
-        if (fetchWithDedupe) {
-          const key = `oembed:${videoId}`;
-          const data = await fetchWithDedupe(key, () => fetch(oembedUrl).then((r) => r.json()), 1000);
-          if (data) return true;
-        } else {
-          // use SWR's mutate to leverage global cache/provider
-          const { mutate } = await import('swr');
-          const key = `oembed:${videoId}`;
-          const data = await mutate(key, () => fetch(oembedUrl).then((r) => r.json()));
-          if (data) return true;
-        }
+        // use SWR's mutate to leverage global cache/provider
+        const { mutate } = await import('swr');
+        const key = `oembed:${videoId}`;
+        const data = await mutate(key, () => fetch(oembedUrl).then((r) => r.json()));
+        if (data) return true;
       } catch {
         const res = await fetch(oembedUrl);
         if (res.ok) return true;
