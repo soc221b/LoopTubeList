@@ -1,0 +1,18 @@
+:root {
+  --bg: #f8fafc;
+  --fg: #0f172a;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+}
+main {
+  max-width: 720px;
+  margin: 48px auto;
+}
