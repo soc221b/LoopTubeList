@@ -119,6 +119,11 @@ ul[role="list"] li button {
   color: var(--github-blue);
   cursor: pointer;
 }
+ul[role="list"] li button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
 
 /* Metadata and muted text */
 .meta { color: var(--muted); font-size: 13px; }
