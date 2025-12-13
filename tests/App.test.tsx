@@ -107,6 +107,9 @@ describe("App", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
+    // ensure no cached oEmbed results remain from prior tests
+    const mod = await import('@/utils/dedupeFetcher');
+    if (mod && mod.clearDedupeResults) mod.clearDedupeResults();
     const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: 'Test Video' }) });
     global.fetch = fetchMock as any;
     const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';

@@ -15,6 +15,7 @@ describe("isYouTubeVideoUrl", () => {
     vi.resetAllMocks();
     const mod = await import('@/utils/dedupeFetcher');
     if (mod && mod.clearDedupeCache) mod.clearDedupeCache();
+    if (mod && mod.clearDedupeResults) mod.clearDedupeResults();
   });
 
   it("returns true for a valid watch URL when oEmbed succeeds", async () => {
@@ -96,6 +97,21 @@ describe("isYouTubeVideoUrl", () => {
     expect(r1).toBe(true);
     expect(r2).toBe(true);
     // fetch should have been called only once due to dedupeFetcher
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("caches successful oEmbed response for app lifecycle", async () => {
+    const fetchMock = vi.fn().mockImplementation(() => mockFetchOnce(true, { title: "Video" }));
+    global.fetch = fetchMock as any;
+    const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+    const r1 = await isYouTubeVideoUrl(url);
+    expect(r1).toBe(true);
+    // clear in-flight promises but keep results
+    const mod = await import('@/utils/dedupeFetcher');
+    mod.clearDedupeCache();
+    // call again — should not invoke fetch because result cached for lifecycle
+    const r2 = await isYouTubeVideoUrl(url);
+    expect(r2).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
