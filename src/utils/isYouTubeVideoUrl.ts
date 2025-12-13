@@ -47,7 +47,7 @@ export async function isYouTubeVideoUrl(
       const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(u)}&format=json`;
       try {
         // use local dedupe helper to avoid duplicate calls within short interval
-        const { fetchWithDedupe } = await import('@/utils/dedupeFetcher');
+        const { fetchWithDedupe } = await import('@/utils/fetchWithDedupe');
         const key = `oembed:${videoId}`;
         const data = await fetchWithDedupe(key, () => fetch(oembedUrl).then((r) => r.json()), 1000);
         if (data) return true;

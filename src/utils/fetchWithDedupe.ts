@@ -1,5 +1,4 @@
-const promises = new Map<string, { ts: number; p: Promise<any> }>();
-const results = new Map<string, any>();
+import { promises, results } from './dedupeState';
 
 export async function fetchWithDedupe<T = any>(
   key: string,
@@ -34,13 +33,4 @@ export async function fetchWithDedupe<T = any>(
   })();
   promises.set(key, { ts: now, p });
   return p;
-}
-
-export function clearDedupeCache() {
-  // clear in-flight promise cache but keep successful results for app lifecycle
-  promises.clear();
-}
-
-export function clearDedupeResults() {
-  results.clear();
 }

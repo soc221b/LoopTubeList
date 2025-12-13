@@ -13,9 +13,10 @@ describe("isYouTubeVideoUrl", () => {
   afterEach(async () => {
     global.fetch = origFetch;
     vi.resetAllMocks();
-    const mod = await import('@/utils/dedupeFetcher');
-    if (mod && mod.clearDedupeCache) mod.clearDedupeCache();
-    if (mod && mod.clearDedupeResults) mod.clearDedupeResults();
+    const cacheMod = await import('@/utils/clearDedupeCache');
+    if (cacheMod && cacheMod.clearDedupeCache) cacheMod.clearDedupeCache();
+    const resMod = await import('@/utils/clearDedupeResults');
+    if (resMod && resMod.clearDedupeResults) resMod.clearDedupeResults();
   });
 
   it("returns true for a valid watch URL when oEmbed succeeds", async () => {
