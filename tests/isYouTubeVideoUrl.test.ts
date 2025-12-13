@@ -108,8 +108,8 @@ describe("isYouTubeVideoUrl", () => {
     const r1 = await isYouTubeVideoUrl(url);
     expect(r1).toBe(true);
     // clear in-flight promises but keep results
-    const mod = await import('@/utils/dedupeFetcher');
-    mod.clearDedupeCache();
+    const mod = await import('@/utils/clearDedupeCache');
+    if (mod && mod.clearDedupeCache) mod.clearDedupeCache();
     // call again — should not invoke fetch because result cached for lifecycle
     const r2 = await isYouTubeVideoUrl(url);
     expect(r2).toBe(true);

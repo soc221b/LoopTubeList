@@ -75,7 +75,7 @@ export default function App(): ReactElement {
       } catch {
         // SWR not available, use local dedupe keyed by youtube id so different URLs for same video share cached result
         const youtubeId = getYouTubeVideoId(rawUrl);
-        const { fetchWithDedupe } = await import('@/utils/dedupeFetcher');
+        const { fetchWithDedupe } = await import('@/utils/fetchWithDedupe');
         const key = youtubeId ? `oembed:${youtubeId}` : oembedUrl;
         const data = await fetchWithDedupe(key, () => fetch(oembedUrl).then((r) => r.json()), 1000);
         if (data && data.title) fetchedTitle = data.title;
