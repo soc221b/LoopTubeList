@@ -28,7 +28,7 @@ describe("App", () => {
     const addButton = screen.getByRole('button', { name: /add/i });
     await user.type(input, 'not-a-url');
     await user.click(addButton);
-    const list = screen.getByRole('list', { name: /watchlist/i });
+    const list = screen.getByRole('list', { name: /playlist/i });
     expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
   });
 
@@ -54,7 +54,7 @@ describe("App", () => {
     await user.type(input, 'https://vimeo.com/123456');
     await user.click(addButton);
     // should not be added
-    const list = screen.getByRole('list', { name: /watchlist/i });
+    const list = screen.getByRole('list', { name: /playlist/i });
     expect(within(list).queryAllByRole('listitem')).toHaveLength(0);
     expect(screen.queryByText('https://vimeo.com/123456')).not.toBeInTheDocument();
   });

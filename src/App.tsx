@@ -127,9 +127,9 @@ export default function App(): ReactElement {
       </section>
 
       <section>
-        <h2>Watchlist ({list.length})</h2>
+        <h2>Playlist ({list.length})</h2>
         {sorted.length === 0 && <p>No videos yet. Add one above.</p>}
-        <ul role="list" aria-label="Watchlist" style={{ listStyle: "none", padding: 0 }}>
+        <ul role="list" aria-label="Playlist" style={{ listStyle: "none", padding: 0 }}>
           {sorted.map((v) => (
             <li
               key={v.id}
