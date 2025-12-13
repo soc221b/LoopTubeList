@@ -1,34 +1,46 @@
+export function getYouTubeVideoId(u: string): string | null {
+  try {
+    const parsed = new URL(u.startsWith('http') ? u : `https://${u}`);
+    const host = parsed.hostname.toLowerCase();
+    if (host === 'youtu.be') {
+      const id = parsed.pathname.replace(/^\//, '');
+      return id || null;
+    }
+    if (host.endsWith('youtube.com')) {
+      const p = parsed.pathname;
+      if (p === '/watch') {
+        const v = parsed.searchParams.get('v');
+        return v || null;
+      }
+      if (p.startsWith('/shorts/')) {
+        const id = p.replace('/shorts/', '');
+        return id || null;
+      }
+      if (p.startsWith('/embed/')) {
+        const id = p.replace('/embed/', '');
+        return id || null;
+      }
+      return null;
+    }
+    return null;
+  } catch {
+    // final attempt: regex search within string for common id patterns
+    try {
+      const m = u.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{6,})/i);
+      return m ? m[1] : null;
+    } catch {
+      return null;
+    }
+  }
+}
+
 export async function isYouTubeVideoUrl(
   u: string,
   options?: { useApi?: boolean; apiKey?: string },
 ): Promise<boolean> {
   try {
-    const parsed = new URL(u.startsWith("http") ? u : `https://${u}`);
-    const host = parsed.hostname.toLowerCase();
-    let videoId: string | null = null;
-
-    if (host === "youtu.be") {
-      const id = parsed.pathname.replace(/^\//, "");
-      if (!id) return false;
-      videoId = id;
-    } else if (host.endsWith("youtube.com")) {
-      const p = parsed.pathname;
-      if (p === "/watch") {
-        const v = parsed.searchParams.get("v");
-        if (!v) return false;
-        videoId = v;
-      } else if (p.startsWith("/shorts/")) {
-        videoId = p.replace("/shorts/", "");
-        if (!videoId) return false;
-      } else if (p.startsWith("/embed/")) {
-        videoId = p.replace("/embed/", "");
-        if (!videoId) return false;
-      } else {
-        return false; // other youtube pages are not video urls
-      }
-    } else {
-      return false;
-    }
+    const videoId = getYouTubeVideoId(u);
+    if (!videoId) return false;
 
     // First try oEmbed (no API key required)
     try {

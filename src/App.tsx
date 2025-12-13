@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, useRef, type ReactElement, type FormEvent } from "react";
-import { isYouTubeVideoUrl } from "@/utils/isYouTubeVideoUrl";
+import { isYouTubeVideoUrl, getYouTubeVideoId } from "@/utils/isYouTubeVideoUrl";
 
 type Video = {
   id: string;
+  youtubeId?: string;
   title: string;
   url: string;
   createdAt: number;
@@ -71,8 +72,17 @@ export default function App(): ReactElement {
       }
     } catch {}
     setError(null);
+    const youtubeId = getYouTubeVideoId(rawUrl);
+    if (!youtubeId) { setError('Only YouTube video URLs are supported.'); return; }
+    // prevent duplicates by youtube id
+    if (list.some((item) => item.youtubeId === youtubeId)) {
+      setError('Video already in playlist.');
+      inputRef.current?.focus();
+      return;
+    }
     const v: Video = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+      youtubeId,
       title: fetchedTitle,
       url: rawUrl,
       createdAt: Date.now(),
@@ -81,7 +91,10 @@ export default function App(): ReactElement {
     };
     setList((s) => [v, ...s]);
     setUrl("");
-    inputRef.current?.focus();
+    if (inputRef.current) {
+      inputRef.current.value = ""; // ensure DOM input cleared immediately
+      inputRef.current.focus();
+    }
   }
 
   function remove(id: string) {
