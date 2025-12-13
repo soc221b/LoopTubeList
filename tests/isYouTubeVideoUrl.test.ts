@@ -10,21 +10,20 @@ describe("isYouTubeVideoUrl", () => {
   beforeEach(() => {
     origFetch = global.fetch;
   });
-  afterEach(async () => {
+  afterEach(() => {
     global.fetch = origFetch;
     vi.resetAllMocks();
-    const cacheMod = await import('@/utils/clearDedupeCache');
-    if (cacheMod && cacheMod.clearDedupeCache) cacheMod.clearDedupeCache();
-    const resMod = await import('@/utils/clearDedupeResults');
-    if (resMod && resMod.clearDedupeResults) resMod.clearDedupeResults();
   });
 
   it("returns true for a valid watch URL when oEmbed succeeds", async () => {
     global.fetch = vi
       .fn()
       .mockImplementation(() => mockFetchOnce(true, { title: "Video" }));
+    const { fetchWithDedupe } = (await import('@/utils/fetchWithDedupe')).createFetchWithDedupe();
     const res = await isYouTubeVideoUrl(
       "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      undefined,
+      fetchWithDedupe,
     );
     expect(res).toBe(true);
   });
@@ -92,8 +91,9 @@ describe("isYouTubeVideoUrl", () => {
     const fetchMock = vi.fn().mockImplementation(() => mockFetchOnce(true, { title: "Video" }));
     global.fetch = fetchMock as any;
     const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-    const p1 = isYouTubeVideoUrl(url);
-    const p2 = isYouTubeVideoUrl(url);
+    const { fetchWithDedupe } = (await import('@/utils/fetchWithDedupe')).createFetchWithDedupe();
+    const p1 = isYouTubeVideoUrl(url, undefined, fetchWithDedupe);
+    const p2 = isYouTubeVideoUrl(url, undefined, fetchWithDedupe);
     const [r1, r2] = await Promise.all([p1, p2]);
     expect(r1).toBe(true);
     expect(r2).toBe(true);
@@ -105,13 +105,13 @@ describe("isYouTubeVideoUrl", () => {
     const fetchMock = vi.fn().mockImplementation(() => mockFetchOnce(true, { title: "Video" }));
     global.fetch = fetchMock as any;
     const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-    const r1 = await isYouTubeVideoUrl(url);
+    const inst = (await import('@/utils/fetchWithDedupe')).createFetchWithDedupe();
+    const r1 = await isYouTubeVideoUrl(url, undefined, inst.fetchWithDedupe);
     expect(r1).toBe(true);
     // clear in-flight promises but keep results
-    const mod = await import('@/utils/clearDedupeCache');
-    if (mod && mod.clearDedupeCache) mod.clearDedupeCache();
+    inst.clearDedupeCache();
     // call again — should not invoke fetch because result cached for lifecycle
-    const r2 = await isYouTubeVideoUrl(url);
+    const r2 = await isYouTubeVideoUrl(url, undefined, inst.fetchWithDedupe);
     expect(r2).toBe(true);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
@@ -121,8 +121,9 @@ describe("isYouTubeVideoUrl", () => {
     global.fetch = fetchMock as any;
     const url1 = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
     const url2 = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstley';
-    const p1 = isYouTubeVideoUrl(url1);
-    const p2 = isYouTubeVideoUrl(url2);
+    const { fetchWithDedupe } = (await import('@/utils/fetchWithDedupe')).createFetchWithDedupe();
+    const p1 = isYouTubeVideoUrl(url1, undefined, fetchWithDedupe);
+    const p2 = isYouTubeVideoUrl(url2, undefined, fetchWithDedupe);
     const [r1, r2] = await Promise.all([p1, p2]);
     expect(r1).toBe(true);
     expect(r2).toBe(true);

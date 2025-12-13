@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, useRef, type ReactElement, type FormEvent } from "react";
 import { isYouTubeVideoUrl, getYouTubeVideoId } from "@/utils/isYouTubeVideoUrl";
+import { DedupeContext } from "@/contexts/DedupeContext";
+import { createFetchWithDedupe } from "@/utils/fetchWithDedupe";
 
 type Video = {
   id: string;
@@ -56,7 +58,7 @@ export default function App(): ReactElement {
     if (!url.trim()) return;
     const rawUrl = url.trim();
     // Validate using shared utility (may verify via oEmbed / YouTube Data API)
-    const ok = await isYouTubeVideoUrl(rawUrl);
+    const ok = await isYouTubeVideoUrl(rawUrl, undefined, dedupe.fetchWithDedupe);
     if (!ok) {
       setError("Only YouTube video URLs are supported.");
       return;
@@ -75,9 +77,8 @@ export default function App(): ReactElement {
       } catch {
         // SWR not available, use local dedupe keyed by youtube id so different URLs for same video share cached result
         const youtubeId = getYouTubeVideoId(rawUrl);
-        const { fetchWithDedupe } = await import('@/utils/fetchWithDedupe');
         const key = youtubeId ? `oembed:${youtubeId}` : oembedUrl;
-        const data = await fetchWithDedupe(key, () => fetch(oembedUrl).then((r) => r.json()), 1000);
+        const data = await dedupe.fetchWithDedupe(key, () => fetch(oembedUrl).then((r) => r.json()), 1000);
         if (data && data.title) fetchedTitle = data.title;
       }
     } catch {}
@@ -135,9 +136,12 @@ export default function App(): ReactElement {
     );
   }
 
+  const dedupe = useMemo(() => createFetchWithDedupe(), []);
+
   return (
-    <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
-      <h1>Loop Tube List</h1>
+    <DedupeContext.Provider value={dedupe}>
+      <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
+        <h1>Loop Tube List</h1>
       <section style={{ marginBottom: 20 }}>
         <h2>Add video</h2>
         <form
@@ -246,6 +250,7 @@ export default function App(): ReactElement {
           ))}
         </ul>
       </section>
-    </main>
+      </main>
+    </DedupeContext.Provider>
   );
 }

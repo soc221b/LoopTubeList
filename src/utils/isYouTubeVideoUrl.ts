@@ -37,6 +37,7 @@ export function getYouTubeVideoId(u: string): string | null {
 export async function isYouTubeVideoUrl(
   u: string,
   options?: { useApi?: boolean; apiKey?: string },
+  fetchWithDedupe?: (key: string, fetcher: () => Promise<any>, intervalMs?: number) => Promise<any>,
 ): Promise<boolean> {
   try {
     const videoId = getYouTubeVideoId(u);
@@ -46,10 +47,19 @@ export async function isYouTubeVideoUrl(
     try {
       const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(u)}&format=json`;
       try {
-        // use local dedupe helper to avoid duplicate calls within short interval
-        const { fetchWithDedupe } = await import('@/utils/fetchWithDedupe');
+        // use provided fetchWithDedupe or module default
+        let fetchFn = fetchWithDedupe;
+        if (!fetchFn) {
+          const mod = await import('@/utils/fetchWithDedupe');
+          if (mod.createFetchWithDedupe) {
+            const inst = mod.createFetchWithDedupe();
+            fetchFn = inst.fetchWithDedupe;
+          } else {
+            fetchFn = mod.fetchWithDedupe;
+          }
+        }
         const key = `oembed:${videoId}`;
-        const data = await fetchWithDedupe(key, () => fetch(oembedUrl).then((r) => r.json()), 1000);
+        const data = await fetchFn(key, () => fetch(oembedUrl).then((r) => r.json()), 1000);
         if (data) return true;
       } catch {
         const res = await fetch(oembedUrl);
