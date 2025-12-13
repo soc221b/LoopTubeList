@@ -100,4 +100,25 @@ describe("App", () => {
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
     global.fetch = origFetch;
   });
+
+  it("does not trigger oEmbed twice when submitting same url quickly via the UI", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
+    const addButton = screen.getByRole("button", { name: /add/i });
+    const origFetch = global.fetch;
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: 'Test Video' }) });
+    global.fetch = fetchMock as any;
+    const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+    await user.type(input, url);
+    await user.click(addButton);
+    await within(screen.getByRole("list", { name: /playlist/i })).findByRole("listitem");
+    // submit again quickly
+    await user.clear(input);
+    await user.type(input, url);
+    await user.click(addButton);
+    // ensure underlying fetch was not called twice
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    global.fetch = origFetch;
+  });
 });
