@@ -117,6 +117,7 @@ export default function App(): ReactElement {
             style={{ flex: 1, padding: "8px" }}
             required
             aria-required="true"
+            autoFocus
           />
           <button type="submit" style={{ padding: "8px 12px" }} aria-label="Add video">Add</button>
         </form>

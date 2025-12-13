@@ -7,4 +7,10 @@ describe("App", () => {
     render(<App />);
     expect(screen.getByText(/Loop Tube List/i)).toBeInTheDocument();
   });
+
+  it("auto-focuses the URL input on load", () => {
+    render(<App />);
+    const input = screen.getByLabelText(/YouTube URL/i);
+    expect(input).toHaveFocus();
+  });
 });
