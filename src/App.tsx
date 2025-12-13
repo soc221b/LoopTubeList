@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState, useRef, type ReactElement, type FormEvent } from "react";
+import React, { useEffect, useMemo, useState, type ReactElement } from "react";
 import { SWRConfig } from 'swr';
-import { isYouTubeVideoUrl, getYouTubeVideoId } from "@/utils/isYouTubeVideoUrl";
+
 import AddVideoForm from './components/AddVideoForm';
 
 
@@ -53,57 +53,6 @@ export default function App(): ReactElement {
     [list],
   );
 
-  async function handleSubmit(e?: FormEvent) {
-    e?.preventDefault();
-    if (!url.trim()) return;
-    const rawUrl = url.trim();
-    // Validate format quickly without remote checks to avoid duplicate network calls
-    const ok = await isYouTubeVideoUrl(rawUrl, { checkRemote: false });
-    if (!ok) {
-      setError("Only YouTube video URLs are supported.");
-      return;
-    }
-    let fetchedTitle = rawUrl;
-    setError(null);
-    const youtubeId = getYouTubeVideoId(rawUrl);
-    if (youtubeId) {
-      try {
-        // use SWR via AddVideoForm component to fetch and cache titles; App will not fetch here
-      } catch {
-        // fallback: try direct fetch
-        const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(rawUrl)}&format=json`;
-        try {
-          const res = await fetch(oembedUrl);
-          if (res.ok) {
-            const data = await res.json();
-            if (data && data.title) fetchedTitle = data.title;
-          }
-        } catch {}
-      }
-    }
-    if (!youtubeId) { setError('Only YouTube video URLs are supported.'); return; }
-    // prevent duplicates by youtube id
-    if (list.some((item) => item.youtubeId === youtubeId)) {
-      setError('Video already in playlist.');
-      inputRef.current?.focus();
-      return;
-    }
-    const v: Video = {
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
-      youtubeId,
-      title: fetchedTitle,
-      url: rawUrl,
-      createdAt: Date.now(),
-      reviewCount: 0,
-      nextReview: computeNextReview(0),
-    };
-    setList((s) => [v, ...s]);
-    setUrl("");
-    if (inputRef.current) {
-      inputRef.current.value = ""; // ensure DOM input cleared immediately
-      inputRef.current.focus();
-    }
-  }
 
   function remove(id: string) {
     setList((s) => s.filter((v) => v.id !== id));

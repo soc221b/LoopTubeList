@@ -3,13 +3,22 @@ import useSWR, { mutate } from 'swr';
 import { isYouTubeVideoUrl, getYouTubeVideoId } from '@/utils/isYouTubeVideoUrl';
 
 const fetcher = (url: string) => fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(new Error('not ok'))));
-const localInFlight = new Map<string, Promise<any>>();
 
 export default function AddVideoForm({ onAdd, exists }: { onAdd: (payload: { url: string; youtubeId: string; title: string }) => Promise<{ success: boolean; error?: string }>; exists?: (id: string) => boolean; }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+
+  const swrKey = pendingId ? `oembed:${pendingId}` : null;
+  // useSWR to manage cache and dedupe; do not auto revalidate on mount so we trigger via mutate
+  useSWR(swrKey, async (key) => {
+    if (!key) return null;
+    const vid = key.split(':')[1];
+    const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent('https://www.youtube.com/watch?v=' + vid)}&format=json`;
+    return fetcher(oembedUrl);
+  }, { revalidateOnFocus: false, dedupingInterval: 1000, revalidateOnMount: false });
 
   async function handleSubmit(e?: React.FormEvent) {
     e?.preventDefault();
@@ -30,35 +39,22 @@ export default function AddVideoForm({ onAdd, exists }: { onAdd: (payload: { url
     }
 
     setLoading(true);
+    setPendingId(youtubeId);
     try {
-      // perform fetch directly but update SWR cache; use local in-flight map to dedupe
-      const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(raw)}&format=json`;
       let data: any | null = null;
       try {
-        if (localInFlight.has(key)) {
-          try {
-            await localInFlight.get(key);
-            try { data = await mutate(key); } catch {}
-          } catch {}
-        } else {
-          const p = (async () => {
-            try {
-              const d = await fetcher(oembedUrl);
-              // populate SWR cache without revalidation
-              try { await mutate(key, d, false); } catch {}
-              return d;
-            } catch {
-              return null;
-            }
-          })();
-          localInFlight.set(key, p);
-          try {
-            data = await p;
-          } finally {
-            localInFlight.delete(key);
-          }
-        }
-      } catch {}
+        data = await mutate(key, () => {
+          const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(raw)}&format=json`;
+          return fetcher(oembedUrl);
+        }, { revalidate: true });
+      } catch {
+        try {
+          const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(raw)}&format=json`;
+          const dd = await fetcher(oembedUrl);
+          try { await mutate(key, dd, false); } catch {}
+          data = dd;
+        } catch {}
+      }
 
       const title = (data && data.title) ? data.title : raw;
       setError(null);
@@ -76,6 +72,7 @@ export default function AddVideoForm({ onAdd, exists }: { onAdd: (payload: { url
       }
     } finally {
       setLoading(false);
+      setPendingId(null);
     }
   }
 
