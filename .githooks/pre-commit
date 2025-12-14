@@ -1,0 +1,13 @@
+#!/bin/sh
+# Run tests before allowing commits to proceed.
+# This hook runs `npm test` and aborts the commit if tests fail.
+
+echo "Running tests before commit..."
+# run tests; keep output visible
+npm test --silent
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Tests failed, aborting commit."
+  exit $status
+fi
+exit 0
