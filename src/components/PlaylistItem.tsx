@@ -20,7 +20,7 @@ export default function PlaylistItem({
 }: {
   v: Video;
   setPlayingId: (id: string | null) => void;
-  playersRef: React.MutableRefObject<Record<string, any>>;
+  playersRef: React.RefObject<Record<string, any>>;
   tryCreatePlayer: (id: string) => void;
 }) {
   const dispatch = usePlaylistDispatch();
@@ -28,7 +28,7 @@ export default function PlaylistItem({
   function handlePlay() {
     setPlayingId(v.id);
     if (v.youtubeId) {
-      const main = playersRef.current.main;
+      const main = playersRef.current?.main;
       if (main) {
         try {
           main.loadVideoById && main.loadVideoById(v.youtubeId);

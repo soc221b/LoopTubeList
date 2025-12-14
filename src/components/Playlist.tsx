@@ -8,7 +8,7 @@ export default function Playlist({
   setPlayingId,
   tryCreatePlayer,
 }: {
-  playersRef: React.MutableRefObject<Record<string, any>>;
+  playersRef: React.RefObject<Record<string, any>>;
   setPlayingId: (id: string | null) => void;
   tryCreatePlayer: (id: string) => void;
 }) {
