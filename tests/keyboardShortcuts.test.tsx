@@ -85,8 +85,10 @@ describe("keyboard shortcuts", () => {
     await within(list).findByRole("listitem");
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
 
-    // undo
+    // ensure input is not focused so app-level undo applies
     input.blur();
+
+    // undo
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
 
@@ -125,8 +127,10 @@ describe("keyboard shortcuts", () => {
     await within(list).findByRole("listitem");
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
 
-    // undo
+    // ensure input is not focused so app-level undo applies
     input.blur();
+
+    // undo
     fireEvent.keyDown(window, { key: "z", metaKey: true });
     expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
 
