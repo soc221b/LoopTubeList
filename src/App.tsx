@@ -33,10 +33,6 @@ function AppInner(): ReactElement {
   const dispatch = usePlaylistDispatch();
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  function applyNewList(newList: PVideo[]) {
-    dispatch({ type: "set", payload: newList });
-  }
-
   function undo() {
     dispatch({ type: "undo" });
   }
@@ -81,22 +77,6 @@ function AppInner(): ReactElement {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [dispatch, past.length, future.length]);
-
-  function remove(id: string) {
-    dispatch({ type: "remove", payload: { id } });
-  }
-
-  function markReviewed(id: string) {
-    const nextReview = computeNextReview(
-      list.find((v) => v.id === id)?.reviewCount! + 1,
-    );
-    dispatch({ type: "reviewed", payload: { id, nextReview } });
-  }
-
-  function resetSchedule(id: string) {
-    const nextReview = computeNextReview(0);
-    dispatch({ type: "reset", payload: { id, nextReview } });
-  }
 
   return (
     <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 1000 }}>
