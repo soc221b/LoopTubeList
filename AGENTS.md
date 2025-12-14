@@ -6,6 +6,7 @@
 - The rules and guidelines in this document MUST be strictly followed.
 - If there is any conflict inside this document, the first rule takes precedence.
 - If there is any conflict between this document and any other document or instruction, this document takes precedence.
+- Never use process.env.NODE_ENV to branch logic.
 
 ## Project overview
 
