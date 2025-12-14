@@ -43,11 +43,17 @@ export default function PlaylistItem({
   }
 
   function handleReviewed() {
-    dispatch({ type: "reviewed", payload: { id: v.id, nextReview: computeNextReview(v.reviewCount + 1) } });
+    dispatch({
+      type: "reviewed",
+      payload: { id: v.id, nextReview: computeNextReview(v.reviewCount + 1) },
+    });
   }
 
   function handleReset() {
-    dispatch({ type: "reset", payload: { id: v.id, nextReview: computeNextReview(0) } });
+    dispatch({
+      type: "reset",
+      payload: { id: v.id, nextReview: computeNextReview(0) },
+    });
   }
 
   function handleRemove() {
@@ -65,13 +71,21 @@ export default function PlaylistItem({
         boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+      <div
+        style={{ display: "flex", justifyContent: "space-between", gap: 12 }}
+      >
         <div style={{ flex: 1 }}>
-          <a href={v.url} target="_blank" rel="noopener noreferrer" style={{ fontWeight: 600 }}>
+          <a
+            href={v.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontWeight: 600 }}
+          >
             {v.title}
           </a>
           <div style={{ fontSize: 12, color: "#444" }}>
-            Reviews: {v.reviewCount} • Next: {new Date(v.nextReview).toLocaleString()}
+            Reviews: {v.reviewCount} • Next:{" "}
+            {new Date(v.nextReview).toLocaleString()}
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -81,7 +95,11 @@ export default function PlaylistItem({
           <button onClick={handleReviewed} title="Mark reviewed">
             Reviewed
           </button>
-          <button onClick={handleReset} title="Reset schedule" disabled={v.reviewCount === 0}>
+          <button
+            onClick={handleReset}
+            title="Reset schedule"
+            disabled={v.reviewCount === 0}
+          >
             Reset
           </button>
           <button onClick={handleRemove} style={{ color: "crimson" }}>
@@ -92,4 +110,3 @@ export default function PlaylistItem({
     </li>
   );
 }
-

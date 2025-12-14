@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useReducer, type ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  type ReactNode,
+} from "react";
 
 export type Video = {
   id: string;
@@ -25,14 +30,20 @@ export const initialState: PlaylistState = {
 export type Action =
   | { type: "add"; payload: Video }
   | { type: "set"; payload: Video[] }
-  | { type: "update"; payload: Partial<Video> & { id?: string; youtubeId?: string } }
+  | {
+      type: "update";
+      payload: Partial<Video> & { id?: string; youtubeId?: string };
+    }
   | { type: "reviewed"; payload: { id: string; nextReview: number } }
   | { type: "remove"; payload: { id: string } }
   | { type: "reset"; payload: { id: string; nextReview: number } }
   | { type: "undo" }
   | { type: "redo" };
 
-export function playlistReducer(state: PlaylistState, action: Action): PlaylistState {
+export function playlistReducer(
+  state: PlaylistState,
+  action: Action,
+): PlaylistState {
   switch (action.type) {
     case "add": {
       const v = action.payload;
@@ -54,7 +65,10 @@ export function playlistReducer(state: PlaylistState, action: Action): PlaylistS
       return {
         ...state,
         list: state.list.map((v) => {
-          if ((update.youtubeId && v.youtubeId === update.youtubeId) || (update.id && v.id === update.id)) {
+          if (
+            (update.youtubeId && v.youtubeId === update.youtubeId) ||
+            (update.id && v.id === update.id)
+          ) {
             return { ...v, ...(update as Partial<Video>) };
           }
           return v;
@@ -66,7 +80,11 @@ export function playlistReducer(state: PlaylistState, action: Action): PlaylistS
       return {
         past: [...state.past, state.list],
         future: [],
-        list: state.list.map((v) => (v.id !== id ? v : { ...v, reviewCount: v.reviewCount + 1, nextReview })),
+        list: state.list.map((v) =>
+          v.id !== id
+            ? v
+            : { ...v, reviewCount: v.reviewCount + 1, nextReview },
+        ),
       };
     }
     case "remove": {
@@ -82,7 +100,9 @@ export function playlistReducer(state: PlaylistState, action: Action): PlaylistS
       return {
         past: [...state.past, state.list],
         future: [],
-        list: state.list.map((v) => (v.id !== id ? v : { ...v, reviewCount: 0, nextReview })),
+        list: state.list.map((v) =>
+          v.id !== id ? v : { ...v, reviewCount: 0, nextReview },
+        ),
       };
     }
     case "undo": {
@@ -108,26 +128,45 @@ export function playlistReducer(state: PlaylistState, action: Action): PlaylistS
   }
 }
 
-const PlaylistStateContext = createContext<PlaylistState | undefined>(undefined);
-const PlaylistDispatchContext = createContext<React.Dispatch<Action> | undefined>(undefined);
+const PlaylistStateContext = createContext<PlaylistState | undefined>(
+  undefined,
+);
+const PlaylistDispatchContext = createContext<
+  React.Dispatch<Action> | undefined
+>(undefined);
 
-export function PlaylistProvider({ children, initial }: { children: ReactNode; initial?: PlaylistState }) {
-  const [state, dispatch] = useReducer(playlistReducer, initial ?? initialState);
+export function PlaylistProvider({
+  children,
+  initial,
+}: {
+  children: ReactNode;
+  initial?: PlaylistState;
+}) {
+  const [state, dispatch] = useReducer(
+    playlistReducer,
+    initial ?? initialState,
+  );
   return (
     <PlaylistStateContext.Provider value={state}>
-      <PlaylistDispatchContext.Provider value={dispatch}>{children}</PlaylistDispatchContext.Provider>
+      <PlaylistDispatchContext.Provider value={dispatch}>
+        {children}
+      </PlaylistDispatchContext.Provider>
     </PlaylistStateContext.Provider>
   );
 }
 
 export function usePlaylist() {
   const ctx = useContext(PlaylistStateContext);
-  if (!ctx) throw new Error("usePlaylist must be used within a PlaylistProvider");
+  if (!ctx)
+    throw new Error("usePlaylist must be used within a PlaylistProvider");
   return ctx;
 }
 
 export function usePlaylistDispatch() {
   const ctx = useContext(PlaylistDispatchContext);
-  if (!ctx) throw new Error("usePlaylistDispatch must be used within a PlaylistProvider");
+  if (!ctx)
+    throw new Error(
+      "usePlaylistDispatch must be used within a PlaylistProvider",
+    );
   return ctx;
 }

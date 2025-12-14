@@ -29,7 +29,6 @@ describe("keyboard shortcuts", () => {
 
     // Ctrl+Z
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
-    // when playlist is empty the <ul> is removed
     await expectPlaylistToHaveLength(0);
 
     global.fetch = origFetch;
@@ -58,7 +57,6 @@ describe("keyboard shortcuts", () => {
 
     // Meta+Z
     fireEvent.keyDown(window, { key: "z", metaKey: true });
-    // when playlist is empty the <ul> is removed
     await expectPlaylistToHaveLength(0);
 
     global.fetch = origFetch;
@@ -87,12 +85,13 @@ describe("keyboard shortcuts", () => {
 
     // undo
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
-    // when playlist is empty the <ul> is removed
     await expectPlaylistToHaveLength(0);
 
     // redo via Ctrl+Y
     fireEvent.keyDown(window, { key: "y", ctrlKey: true });
-    const listAfterRedo = await screen.findByRole("list", { name: /playlist/i });
+    const listAfterRedo = await screen.findByRole("list", {
+      name: /playlist/i,
+    });
     expect(within(listAfterRedo).queryAllByRole("listitem")).toHaveLength(1);
 
     // undo again -> list removed
@@ -101,7 +100,9 @@ describe("keyboard shortcuts", () => {
 
     // redo via Ctrl+Shift+Z
     fireEvent.keyDown(window, { key: "z", ctrlKey: true, shiftKey: true });
-    const listAfterRedo2 = await screen.findByRole("list", { name: /playlist/i });
+    const listAfterRedo2 = await screen.findByRole("list", {
+      name: /playlist/i,
+    });
     expect(within(listAfterRedo2).queryAllByRole("listitem")).toHaveLength(1);
 
     global.fetch = origFetch;
@@ -130,7 +131,6 @@ describe("keyboard shortcuts", () => {
 
     // undo
     fireEvent.keyDown(window, { key: "z", metaKey: true });
-    // when playlist is empty the <ul> is removed
     await expectPlaylistToHaveLength(0);
 
     // redo via Meta+Shift+Z

@@ -30,7 +30,6 @@ describe("App", () => {
     const addButton = screen.getByRole("button", { name: /add/i });
     await user.type(input, "not-a-url");
     await user.click(addButton);
-    // playlist ul should not be present when empty
     await expectPlaylistToHaveLength(0);
   });
 
@@ -61,7 +60,6 @@ describe("App", () => {
     await user.click(addButton);
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(/YouTube/i);
-    // playlist ul should not be present when empty
     await expectPlaylistToHaveLength(0);
   });
 

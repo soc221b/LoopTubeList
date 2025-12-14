@@ -54,10 +54,16 @@ function AppInner(): ReactElement {
   // keyboard shortcuts for undo/redo
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      const active = (typeof document !== "undefined" && document.activeElement) as Element | null;
+      const active = (typeof document !== "undefined" &&
+        document.activeElement) as Element | null;
       if (active) {
         const tag = active.tagName;
-        if (tag === "INPUT" || tag === "TEXTAREA" || (active as HTMLElement).isContentEditable) return;
+        if (
+          tag === "INPUT" ||
+          tag === "TEXTAREA" ||
+          (active as HTMLElement).isContentEditable
+        )
+          return;
       }
       const key = (e.key || "").toLowerCase();
       const ctrl = e.ctrlKey || e.metaKey;
@@ -81,7 +87,9 @@ function AppInner(): ReactElement {
   }
 
   function markReviewed(id: string) {
-    const nextReview = computeNextReview(list.find((v) => v.id === id)?.reviewCount! + 1);
+    const nextReview = computeNextReview(
+      list.find((v) => v.id === id)?.reviewCount! + 1,
+    );
     dispatch({ type: "reviewed", payload: { id, nextReview } });
   }
 
@@ -112,11 +120,15 @@ function AppInner(): ReactElement {
             events: {
               onReady: () => {},
               onStateChange: (e: any) => {
-                const stateEnded = YT.PlayerState && e && e.data === YT.PlayerState.ENDED;
+                const stateEnded =
+                  YT.PlayerState && e && e.data === YT.PlayerState.ENDED;
                 if (stateEnded) {
                   let currentId = youtubeId;
                   try {
-                    if (playersRef.current.main && typeof playersRef.current.main.getVideoData === "function") {
+                    if (
+                      playersRef.current.main &&
+                      typeof playersRef.current.main.getVideoData === "function"
+                    ) {
                       const info = playersRef.current.main.getVideoData();
                       if (info && info.video_id) currentId = info.video_id;
                     }
@@ -131,7 +143,8 @@ function AppInner(): ReactElement {
           playersRef.current.main = player;
         } else {
           try {
-            playersRef.current.main.loadVideoById && playersRef.current.main.loadVideoById(youtubeId);
+            playersRef.current.main.loadVideoById &&
+              playersRef.current.main.loadVideoById(youtubeId);
             (window as any).__ytPlayers = (window as any).__ytPlayers || {};
             (window as any).__ytPlayers[youtubeId] = playersRef.current.main;
           } catch {}
@@ -144,7 +157,13 @@ function AppInner(): ReactElement {
     const found = list.find((v) => v.youtubeId === youtubeId);
     if (!found) return;
     const now = Date.now();
-    const next = [...list].sort((a, b) => a.nextReview - b.nextReview).find((v) => v.youtubeId !== youtubeId && (v.reviewCount === 0 || v.nextReview <= now));
+    const next = [...list]
+      .sort((a, b) => a.nextReview - b.nextReview)
+      .find(
+        (v) =>
+          v.youtubeId !== youtubeId &&
+          (v.reviewCount === 0 || v.nextReview <= now),
+      );
     markReviewed(found.id);
     if (next) {
       setPlayingId(next.id);
@@ -152,18 +171,26 @@ function AppInner(): ReactElement {
         tryCreatePlayer(next.youtubeId);
         try {
           (window as any).__ytPlayers = (window as any).__ytPlayers || {};
-          if (playersRef.current.main) (window as any).__ytPlayers[next.youtubeId] = playersRef.current.main;
-          else (window as any).__ytPlayers[next.youtubeId] = (window as any).__ytPlayers[next.youtubeId] || {};
+          if (playersRef.current.main)
+            (window as any).__ytPlayers[next.youtubeId] =
+              playersRef.current.main;
+          else
+            (window as any).__ytPlayers[next.youtubeId] =
+              (window as any).__ytPlayers[next.youtubeId] || {};
         } catch {}
       }
       try {
         (window as any).__ytPlayers = (window as any).__ytPlayers || {};
         list.forEach((itm) => {
-          if (itm.youtubeId) (window as any).__ytPlayers[itm.youtubeId] = (window as any).__ytPlayers[itm.youtubeId] || {};
+          if (itm.youtubeId)
+            (window as any).__ytPlayers[itm.youtubeId] =
+              (window as any).__ytPlayers[itm.youtubeId] || {};
         });
       } catch {}
       try {
-        playersRef.current.main && playersRef.current.main.playVideo && playersRef.current.main.playVideo();
+        playersRef.current.main &&
+          playersRef.current.main.playVideo &&
+          playersRef.current.main.playVideo();
       } catch {}
     } else setPlayingId(null);
   }
@@ -197,10 +224,19 @@ function AppInner(): ReactElement {
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <h1 style={{ margin: 0 }}>Loop Tube List</h1>
           <div style={{ marginLeft: 12 }}>
-            <button onClick={undo} disabled={past.length === 0} aria-label="Undo" style={{ marginRight: 8 }}>
+            <button
+              onClick={undo}
+              disabled={past.length === 0}
+              aria-label="Undo"
+              style={{ marginRight: 8 }}
+            >
               Undo
             </button>
-            <button onClick={redo} disabled={future.length === 0} aria-label="Redo">
+            <button
+              onClick={redo}
+              disabled={future.length === 0}
+              aria-label="Redo"
+            >
               Redo
             </button>
           </div>
