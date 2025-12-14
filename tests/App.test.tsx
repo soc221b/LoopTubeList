@@ -70,12 +70,10 @@ describe("App", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "Test Video" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "Test Video" }),
+    }) as any;
     await user.type(input, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
     await user.click(addButton);
     // wait for a listitem to appear
@@ -93,12 +91,10 @@ describe("App", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "Test Video" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "Test Video" }),
+    }) as any;
     await user.type(input, "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
     await user.click(addButton);
     await within(screen.getByRole("list", { name: /playlist/i })).findByRole(
@@ -121,12 +117,10 @@ describe("App", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "Test Video" }),
-      });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "Test Video" }),
+    });
     global.fetch = fetchMock as any;
     const url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
     await user.type(input, url);

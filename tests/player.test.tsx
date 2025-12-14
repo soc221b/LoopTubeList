@@ -1,5 +1,11 @@
 import React from "react";
-import { render, screen, within, waitFor, fireEvent } from "@testing-library/react";
+import {
+  render,
+  screen,
+  within,
+  waitFor,
+  fireEvent,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import App from "@/App";
@@ -10,7 +16,10 @@ function createYTMock() {
   const eventsById: Record<string, any> = {};
   (window as any).YT = {
     Player: function (elemId: string, opts: any) {
-      const id = (opts && opts.videoId) || (elemId && String(elemId).replace(/^player-/, "")) || "unknown";
+      const id =
+        (opts && opts.videoId) ||
+        (elemId && String(elemId).replace(/^player-/, "")) ||
+        "unknown";
       let currentVideo = id;
       const inst: any = {
         _opts: opts,
@@ -30,7 +39,10 @@ function createYTMock() {
       };
       // store events so tests can trigger state changes without peeking at internals
       if (opts && opts.events) eventsById[id] = opts.events;
-      opts && opts.events && opts.events.onReady && opts.events.onReady({ target: inst });
+      opts &&
+        opts.events &&
+        opts.events.onReady &&
+        opts.events.onReady({ target: inst });
       return inst;
     },
     PlayerState,
@@ -50,13 +62,20 @@ describe("player and autoplay", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "Play Test" }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Play Test" }),
+      }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=play111");
     await user.click(addButton);
     const list = await screen.findByRole("list", { name: /playlist/i });
     const item = await within(list).findByRole("listitem");
-    expect(within(item).getByRole("button", { name: /play/i })).toBeInTheDocument();
+    expect(
+      within(item).getByRole("button", { name: /play/i }),
+    ).toBeInTheDocument();
 
     global.fetch = origFetch;
   });
@@ -67,15 +86,26 @@ describe("player and autoplay", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "Hide Test" }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Hide Test" }),
+      }) as any;
 
     // add a video and mark it reviewed via UI
-    fireEvent.change(input, { target: { value: "https://www.youtube.com/watch?v=hide111" } });
+    fireEvent.change(input, {
+      target: { value: "https://www.youtube.com/watch?v=hide111" },
+    });
     fireEvent.click(addButton);
     const list = await screen.findByRole("list", { name: /playlist/i });
     const links = within(list).getAllByRole("link");
-    const link = links.find((l) => (l as HTMLAnchorElement).href.includes("hide111"));
-    const item = link ? ((link as HTMLElement).closest("li") as HTMLElement) : await within(list).findByRole("listitem");
+    const link = links.find((l) =>
+      (l as HTMLAnchorElement).href.includes("hide111"),
+    );
+    const item = link
+      ? ((link as HTMLElement).closest("li") as HTMLElement)
+      : await within(list).findByRole("listitem");
 
     const yt = createYTMock();
 
@@ -91,12 +121,16 @@ describe("player and autoplay", () => {
 
     // item should show Reviews: 1
     const after = await within(list).findAllByRole("listitem");
-    const myItem = after.find((it) => (within(it).getByRole("link") as HTMLAnchorElement).href.includes("hide111"));
+    const myItem = after.find((it) =>
+      (within(it).getByRole("link") as HTMLAnchorElement).href.includes(
+        "hide111",
+      ),
+    );
     expect(myItem).toBeDefined();
     await waitFor(() => expect(myItem!.textContent).toMatch(/Reviews:\s*1/));
 
     global.fetch = origFetch;
-  })
+  });
 
   it("clicking play shows the player iframe", async () => {
     const user = userEvent.setup();
@@ -104,7 +138,12 @@ describe("player and autoplay", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "Embed Test" }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Embed Test" }),
+      }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=embed111");
     await user.click(addButton);
@@ -126,22 +165,37 @@ describe("player and autoplay", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "Review Test" }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Review Test" }),
+      }) as any;
 
     // add one video and mark reviewed via UI
-    fireEvent.change(input, { target: { value: "https://www.youtube.com/watch?v=mr111" } });
+    fireEvent.change(input, {
+      target: { value: "https://www.youtube.com/watch?v=mr111" },
+    });
     fireEvent.click(addButton);
     const list = await screen.findByRole("list", { name: /playlist/i });
     const links = within(list).getAllByRole("link");
-    const link = links.find((l) => (l as HTMLAnchorElement).href.includes("mr111"));
-    const item = link ? ((link as HTMLElement).closest("li") as HTMLElement) : await within(list).findByRole("listitem");
+    const link = links.find((l) =>
+      (l as HTMLAnchorElement).href.includes("mr111"),
+    );
+    const item = link
+      ? ((link as HTMLElement).closest("li") as HTMLElement)
+      : await within(list).findByRole("listitem");
 
     // mark reviewed via UI
     await user.click(within(item).getByRole("button", { name: /reviewed/i }));
 
     // item should show Reviews: 1
     const after = await within(list).findAllByRole("listitem");
-    const myItem = after.find((it) => (within(it).getByRole("link") as HTMLAnchorElement).href.includes("mr111"));
+    const myItem = after.find((it) =>
+      (within(it).getByRole("link") as HTMLAnchorElement).href.includes(
+        "mr111",
+      ),
+    );
     expect(myItem).toBeDefined();
     await waitFor(() => expect(myItem!.textContent).toMatch(/Reviews:\s*1/));
 
@@ -154,7 +208,12 @@ describe("player and autoplay", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "Auto Next Test" }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Auto Next Test" }),
+      }) as any;
 
     const yt = createYTMock();
 
@@ -167,28 +226,52 @@ describe("player and autoplay", () => {
 
     const list = await screen.findByRole("list", { name: /playlist/i });
     const links = within(list).getAllByRole("link");
-    const firstLink = links.find((l) => (l as HTMLAnchorElement).href.includes("first111"));
-    const firstItem = firstLink ? ((firstLink as HTMLElement).closest("li") as HTMLElement) : (await within(list).findAllByRole("listitem"))[0];
+    const firstLink = links.find((l) =>
+      (l as HTMLAnchorElement).href.includes("first111"),
+    );
+    const firstItem = firstLink
+      ? ((firstLink as HTMLElement).closest("li") as HTMLElement)
+      : (await within(list).findAllByRole("listitem"))[0];
     // mark first as reviewed via the UI
-    await user.click(within(firstItem).getByRole("button", { name: /reviewed/i }));
+    await user.click(
+      within(firstItem).getByRole("button", { name: /reviewed/i }),
+    );
     await waitFor(() => {
       const after = within(list).getAllByRole("listitem");
-      const first = after.find((it) => (within(it).getByRole("link") as HTMLAnchorElement).href.includes("first111"));
+      const first = after.find((it) =>
+        (within(it).getByRole("link") as HTMLAnchorElement).href.includes(
+          "first111",
+        ),
+      );
       expect(first).toBeDefined();
       expect(first!.textContent).toMatch(/Reviews:\s*1/);
     });
 
     // mark second reviewed via UI as well
     const links2 = within(list).getAllByRole("link");
-    const secondLink = links2.find((l) => (l as HTMLAnchorElement).href.includes("second222"));
-    const secondItem = secondLink ? ((secondLink as HTMLElement).closest("li") as HTMLElement) : (await within(list).findAllByRole("listitem"))[1];
-    await user.click(within(secondItem).getByRole("button", { name: /reviewed/i }));
+    const secondLink = links2.find((l) =>
+      (l as HTMLAnchorElement).href.includes("second222"),
+    );
+    const secondItem = secondLink
+      ? ((secondLink as HTMLElement).closest("li") as HTMLElement)
+      : (await within(list).findAllByRole("listitem"))[1];
+    await user.click(
+      within(secondItem).getByRole("button", { name: /reviewed/i }),
+    );
 
     // both should now show Reviews: 1
     await waitFor(() => {
       const after = within(list).getAllByRole("listitem");
-      const first = after.find((it) => (within(it).getByRole("link") as HTMLAnchorElement).href.includes("first111"));
-      const second = after.find((it) => (within(it).getByRole("link") as HTMLAnchorElement).href.includes("second222"));
+      const first = after.find((it) =>
+        (within(it).getByRole("link") as HTMLAnchorElement).href.includes(
+          "first111",
+        ),
+      );
+      const second = after.find((it) =>
+        (within(it).getByRole("link") as HTMLAnchorElement).href.includes(
+          "second222",
+        ),
+      );
       expect(first).toBeDefined();
       expect(second).toBeDefined();
       expect(first!.textContent).toMatch(/Reviews:\s*1/);

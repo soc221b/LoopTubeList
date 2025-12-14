@@ -1,6 +1,10 @@
 import React from "react";
 
-export default function VideoPlayer({ playingId }: { playingId: string | null }) {
+export default function VideoPlayer({
+  playingId,
+}: {
+  playingId: string | null;
+}) {
   return (
     <div style={{ marginBottom: 12, display: playingId ? undefined : "none" }}>
       <iframe

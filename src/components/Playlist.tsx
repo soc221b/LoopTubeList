@@ -2,7 +2,6 @@ import React from "react";
 import AddVideoForm from "@/components/AddVideoForm";
 import PlaylistItem from "./PlaylistItem";
 
-
 type Video = {
   id: string;
   youtubeId?: string;
@@ -44,7 +43,6 @@ export default function Playlist({
     <section>
       <h2>Playlist ({list.length})</h2>
 
-
       {/* Add video form moved inside playlist */}
       <div style={{ marginBottom: 16 }}>
         <AddVideoForm
@@ -77,7 +75,11 @@ export default function Playlist({
 
       {sorted.length === 0 && <p>No videos yet. Add one above.</p>}
 
-      <ul role="list" aria-label="Playlist" style={{ listStyle: "none", padding: 0 }}>
+      <ul
+        role="list"
+        aria-label="Playlist"
+        style={{ listStyle: "none", padding: 0 }}
+      >
         {sorted.map((v) => (
           <PlaylistItem
             key={v.id}

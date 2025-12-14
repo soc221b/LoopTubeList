@@ -83,9 +83,8 @@ export default function App(): ReactElement {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       // If an input-like element is focused, let the browser handle undo/redo for the text field.
-      const active = (typeof document !== 'undefined' && document.activeElement) as
-        | Element
-        | null;
+      const active = (typeof document !== "undefined" &&
+        document.activeElement) as Element | null;
       if (active) {
         const tag = active.tagName;
         // Treat INPUT, TEXTAREA or any contentEditable element as editable.
@@ -117,7 +116,6 @@ export default function App(): ReactElement {
     return () => window.removeEventListener("keydown", onKey);
   }, [undo, redo, past.length, future.length]);
 
-
   function remove(id: string) {
     const newList = list.filter((v) => v.id !== id);
     applyNewList(newList);
@@ -138,7 +136,9 @@ export default function App(): ReactElement {
 
   function resetSchedule(id: string) {
     const newList = list.map((v) =>
-      v.id !== id ? v : { ...v, reviewCount: 0, nextReview: computeNextReview(0) },
+      v.id !== id
+        ? v
+        : { ...v, reviewCount: 0, nextReview: computeNextReview(0) },
     );
     applyNewList(newList);
   }
@@ -169,11 +169,15 @@ export default function App(): ReactElement {
                 // nothing
               },
               onStateChange: (e: any) => {
-                const stateEnded = YT.PlayerState && e && e.data === YT.PlayerState.ENDED;
+                const stateEnded =
+                  YT.PlayerState && e && e.data === YT.PlayerState.ENDED;
                 if (stateEnded) {
                   let currentId = youtubeId;
                   try {
-                    if (playersRef.current.main && typeof playersRef.current.main.getVideoData === "function") {
+                    if (
+                      playersRef.current.main &&
+                      typeof playersRef.current.main.getVideoData === "function"
+                    ) {
                       const info = playersRef.current.main.getVideoData();
                       if (info && info.video_id) currentId = info.video_id;
                     }
@@ -189,7 +193,8 @@ export default function App(): ReactElement {
         } else {
           // if player exists, ask it to load the new video id
           try {
-            playersRef.current.main.loadVideoById && playersRef.current.main.loadVideoById(youtubeId);
+            playersRef.current.main.loadVideoById &&
+              playersRef.current.main.loadVideoById(youtubeId);
             // also map for tests
             (window as any).__ytPlayers = (window as any).__ytPlayers || {};
             (window as any).__ytPlayers[youtubeId] = playersRef.current.main;
@@ -205,7 +210,11 @@ export default function App(): ReactElement {
     const now = Date.now();
     const next = [...list]
       .sort((a, b) => a.nextReview - b.nextReview)
-      .find((v) => v.youtubeId !== youtubeId && (v.reviewCount === 0 || v.nextReview <= now));
+      .find(
+        (v) =>
+          v.youtubeId !== youtubeId &&
+          (v.reviewCount === 0 || v.nextReview <= now),
+      );
     markReviewed(found.id);
     if (next) {
       setPlayingId(next.id);
@@ -213,8 +222,12 @@ export default function App(): ReactElement {
         tryCreatePlayer(next.youtubeId);
         try {
           (window as any).__ytPlayers = (window as any).__ytPlayers || {};
-          if (playersRef.current.main) (window as any).__ytPlayers[next.youtubeId] = playersRef.current.main;
-          else (window as any).__ytPlayers[next.youtubeId] = (window as any).__ytPlayers[next.youtubeId] || {};
+          if (playersRef.current.main)
+            (window as any).__ytPlayers[next.youtubeId] =
+              playersRef.current.main;
+          else
+            (window as any).__ytPlayers[next.youtubeId] =
+              (window as any).__ytPlayers[next.youtubeId] || {};
         } catch {}
       }
 
@@ -222,12 +235,16 @@ export default function App(): ReactElement {
       try {
         (window as any).__ytPlayers = (window as any).__ytPlayers || {};
         list.forEach((itm) => {
-          if (itm.youtubeId) (window as any).__ytPlayers[itm.youtubeId] = (window as any).__ytPlayers[itm.youtubeId] || {};
+          if (itm.youtubeId)
+            (window as any).__ytPlayers[itm.youtubeId] =
+              (window as any).__ytPlayers[itm.youtubeId] || {};
         });
       } catch {}
 
       try {
-        playersRef.current.main && playersRef.current.main.playVideo && playersRef.current.main.playVideo();
+        playersRef.current.main &&
+          playersRef.current.main.playVideo &&
+          playersRef.current.main.playVideo();
       } catch {}
     } else setPlayingId(null);
   }
@@ -262,13 +279,24 @@ export default function App(): ReactElement {
   return (
     <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 1000 }}>
       <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
-
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <h1 style={{ margin: 0 }}>Loop Tube List</h1>
           <div style={{ marginLeft: 12 }}>
-            <button onClick={undo} disabled={past.length === 0} aria-label="Undo" style={{ marginRight: 8 }}>Undo</button>
-            <button onClick={redo} disabled={future.length === 0} aria-label="Redo">Redo</button>
+            <button
+              onClick={undo}
+              disabled={past.length === 0}
+              aria-label="Undo"
+              style={{ marginRight: 8 }}
+            >
+              Undo
+            </button>
+            <button
+              onClick={redo}
+              disabled={future.length === 0}
+              aria-label="Redo"
+            >
+              Redo
+            </button>
           </div>
         </div>
 
@@ -288,7 +316,6 @@ export default function App(): ReactElement {
           computeNextReview={computeNextReview}
           anyNeedsReview={anyNeedsReview}
         />
-
       </main>
     </SWRConfig>
   );

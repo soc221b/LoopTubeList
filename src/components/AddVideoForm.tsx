@@ -7,7 +7,9 @@ import {
 
 type OEmbed = { title?: string; [k: string]: unknown };
 const fetcher = (url: string): Promise<OEmbed> =>
-  fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(new Error("not ok"))));
+  fetch(url).then((r) =>
+    r.ok ? r.json() : Promise.reject(new Error("not ok")),
+  );
 
 export default function AddVideoForm({
   onAdd,

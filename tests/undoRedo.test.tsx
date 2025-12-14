@@ -11,11 +11,18 @@ describe("undo/redo", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "Undo Test" }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Undo Test" }),
+      }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=aaa111");
     await user.click(addButton);
-    await within(screen.getByRole("list", { name: /playlist/i })).findByRole("listitem");
+    await within(screen.getByRole("list", { name: /playlist/i })).findByRole(
+      "listitem",
+    );
 
     const list = screen.getByRole("list", { name: /playlist/i });
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
@@ -37,7 +44,12 @@ describe("undo/redo", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "Review Test" }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Review Test" }),
+      }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=bbb222");
     await user.click(addButton);
@@ -70,7 +82,12 @@ describe("undo/redo", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "NoReset Test" }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "NoReset Test" }),
+      }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=noreset1");
     await user.click(addButton);
@@ -88,7 +105,12 @@ describe("undo/redo", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "Reset Test" }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Reset Test" }),
+      }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=ccc333");
     await user.click(addButton);
@@ -124,7 +146,12 @@ describe("undo/redo", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ title: "Remove Test" }) }) as any;
+    global.fetch = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({ title: "Remove Test" }),
+      }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=ddd444");
     await user.click(addButton);
@@ -133,7 +160,11 @@ describe("undo/redo", () => {
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
 
     // remove
-    await user.click(within(await within(list).findByRole("listitem")).getByRole("button", { name: /remove/i }));
+    await user.click(
+      within(await within(list).findByRole("listitem")).getByRole("button", {
+        name: /remove/i,
+      }),
+    );
     expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
 
     // undo remove -> item back
