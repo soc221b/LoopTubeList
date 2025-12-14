@@ -1,44 +1,23 @@
 import React from "react";
 import AddVideoForm from "@/components/AddVideoForm";
 import PlaylistItem from "./PlaylistItem";
-
-type Video = {
-  id: string;
-  youtubeId?: string;
-  title: string;
-  url: string;
-  createdAt: number;
-  reviewCount: number;
-  nextReview: number;
-};
+import { usePlaylist, usePlaylistDispatch } from "@/PlaylistContext";
+import { computeNextReview } from "@/App";
 
 export default function Playlist({
-  list,
-  sorted,
-  playingId,
   playersRef,
   setPlayingId,
   tryCreatePlayer,
-  markReviewed,
-  resetSchedule,
-  remove,
-  applyNewList,
-  computeNextReview,
-  anyNeedsReview,
 }: {
-  list: Video[];
-  sorted: Video[];
-  playingId: string | null;
   playersRef: React.MutableRefObject<Record<string, any>>;
   setPlayingId: (id: string | null) => void;
   tryCreatePlayer: (id: string) => void;
-  markReviewed: (id: string) => void;
-  resetSchedule: (id: string) => void;
-  remove: (id: string) => void;
-  applyNewList: (l: Video[]) => void;
-  computeNextReview: (n: number) => number;
-  anyNeedsReview: () => boolean;
 }) {
+  const { list } = usePlaylist();
+  const dispatch = usePlaylistDispatch();
+
+  const sorted = [...list].sort((a, b) => a.nextReview - b.nextReview);
+
   return (
     <section>
       <h2>Playlist ({list.length})</h2>
@@ -56,10 +35,8 @@ export default function Playlist({
             if (list.some((item) => item.youtubeId === youtubeId)) {
               return { success: false, error: "Video already in playlist." };
             }
-            const v: Video = {
-              id:
-                Date.now().toString(36) +
-                Math.random().toString(36).slice(2, 8),
+            const v = {
+              id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
               youtubeId,
               title,
               url: rawUrl,
@@ -67,7 +44,7 @@ export default function Playlist({
               reviewCount: 0,
               nextReview: computeNextReview(0),
             };
-            applyNewList([v, ...list]);
+            dispatch({ type: "add", payload: v });
             return { success: true };
           }}
         />
@@ -75,11 +52,7 @@ export default function Playlist({
 
       {sorted.length === 0 && <p>No videos yet. Add one above.</p>}
 
-      <ul
-        role="list"
-        aria-label="Playlist"
-        style={{ listStyle: "none", padding: 0 }}
-      >
+      <ul role="list" aria-label="Playlist" style={{ listStyle: "none", padding: 0 }}>
         {sorted.map((v) => (
           <PlaylistItem
             key={v.id}
@@ -87,9 +60,9 @@ export default function Playlist({
             setPlayingId={setPlayingId}
             playersRef={playersRef}
             tryCreatePlayer={tryCreatePlayer}
-            markReviewed={markReviewed}
-            resetSchedule={resetSchedule}
-            remove={remove}
+            markReviewed={(id) => dispatch({ type: "reviewed", payload: { id, nextReview: computeNextReview(list.find((x) => x.id === id)?.reviewCount! + 1) } })}
+            resetSchedule={(id) => dispatch({ type: "reset", payload: { id, nextReview: computeNextReview(0) } })}
+            remove={(id) => dispatch({ type: "remove", payload: { id } })}
           />
         ))}
       </ul>

@@ -209,18 +209,9 @@ function AppInner(): ReactElement {
         <VideoPlayer playingId={playingId} />
 
         <Playlist
-          list={list}
-          sorted={sorted}
-          playingId={playingId}
           playersRef={playersRef}
           setPlayingId={setPlayingId}
           tryCreatePlayer={tryCreatePlayer}
-          markReviewed={markReviewed}
-          resetSchedule={resetSchedule}
-          remove={remove}
-          applyNewList={applyNewList}
-          computeNextReview={computeNextReview}
-          anyNeedsReview={anyNeedsReview}
         />
       </main>
     </SWRConfig>
