@@ -77,7 +77,6 @@ export default function VideoPlayer({
                     playersRef.current.main.loadVideoById &&
                     lastLoadedRef.current !== pending
                   ) {
-                    console.debug("Video: onReady loading", pending);
                     playersRef.current.main.loadVideoById(pending);
                     lastLoadedRef.current = pending;
                     if (
@@ -129,14 +128,6 @@ export default function VideoPlayer({
                     currentId !== youtubeId &&
                     lastLoadedRef.current !== youtubeId
                   ) {
-                    console.debug(
-                      "Video: existing player load (conditional)",
-                      youtubeId,
-                    );
-                    console.debug(
-                      "Video: existing player load (catch)",
-                      youtubeId,
-                    );
                     playersRef.current.main.loadVideoById(youtubeId);
                     lastLoadedRef.current = youtubeId;
                   }
@@ -156,14 +147,9 @@ export default function VideoPlayer({
   }
 
   function handleVideoEndedByYoutubeId(youtubeId: string) {
-    console.debug("Video: handleEnded called with", youtubeId);
     // find video
     const currentList = listRef.current;
     const found = currentList.find((v) => v.youtubeId === youtubeId);
-    console.debug(
-      "Video: current list ids",
-      currentList.map((v) => v.youtubeId),
-    );
     if (!found) return;
     const now = Date.now();
     const next = [...currentList]
@@ -175,9 +161,7 @@ export default function VideoPlayer({
       );
 
     // prepare pending load for next early to avoid races with other effects
-    console.debug("Video: handleEnded nextCandidate", next && next.youtubeId);
     if (next && next.youtubeId) {
-      console.debug("Video: handleEnded set pending to", next.youtubeId);
       pendingYoutubeRef.current = next.youtubeId;
       shouldPlayRef.current = true;
     }
@@ -200,7 +184,6 @@ export default function VideoPlayer({
             playersRef.current.main.loadVideoById
           ) {
             // load the next id (pending was set above)
-            console.debug("Video: handleEnded loading next", next.youtubeId);
             playersRef.current.main.loadVideoById(next.youtubeId);
             lastLoadedRef.current = next.youtubeId;
             try {
@@ -245,12 +228,10 @@ export default function VideoPlayer({
               const info = main.getVideoData && main.getVideoData();
               const currentId = info && info.video_id ? info.video_id : null;
               if (currentId !== loadId && lastLoadedRef.current !== loadId) {
-                console.debug("Video: playingId effect loading", loadId);
                 main.loadVideoById(loadId);
                 lastLoadedRef.current = loadId;
               }
             } catch {
-              console.debug("Video: playingId effect loading (catch)", loadId);
               main.loadVideoById(loadId);
               lastLoadedRef.current = loadId;
             }
