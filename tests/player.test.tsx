@@ -62,12 +62,10 @@ describe("player and autoplay", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "Play Test" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "Play Test" }),
+    }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=play111");
     await user.click(addButton);
@@ -86,12 +84,10 @@ describe("player and autoplay", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "Hide Test" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "Hide Test" }),
+    }) as any;
 
     // add a video and mark it reviewed via UI
     fireEvent.change(input, {
@@ -138,12 +134,10 @@ describe("player and autoplay", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "Embed Test" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "Embed Test" }),
+    }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=embed111");
     await user.click(addButton);
@@ -165,12 +159,10 @@ describe("player and autoplay", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "Review Test" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "Review Test" }),
+    }) as any;
 
     // add one video and mark reviewed via UI
     fireEvent.change(input, {
@@ -208,12 +200,10 @@ describe("player and autoplay", () => {
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "Auto Next Test" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "Auto Next Test" }),
+    }) as any;
 
     const yt = createYTMock();
 

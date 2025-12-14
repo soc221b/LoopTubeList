@@ -12,12 +12,10 @@ describe("keyboard shortcuts", () => {
     const addButton = screen.getByRole("button", { name: /add/i });
 
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "KB Undo Win" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "KB Undo Win" }),
+    }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=uwin111");
     await user.click(addButton);
@@ -42,12 +40,10 @@ describe("keyboard shortcuts", () => {
     const addButton = screen.getByRole("button", { name: /add/i });
 
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "KB Undo Mac" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "KB Undo Mac" }),
+    }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=umac111");
     await user.click(addButton);
@@ -72,12 +68,10 @@ describe("keyboard shortcuts", () => {
     const addButton = screen.getByRole("button", { name: /add/i });
 
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "KB Redo Win" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "KB Redo Win" }),
+    }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=rwin111");
     await user.click(addButton);
@@ -114,12 +108,10 @@ describe("keyboard shortcuts", () => {
     const addButton = screen.getByRole("button", { name: /add/i });
 
     const origFetch = global.fetch;
-    global.fetch = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ title: "KB Redo Mac" }),
-      }) as any;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "KB Redo Mac" }),
+    }) as any;
 
     await user.type(input, "https://www.youtube.com/watch?v=rmac111");
     await user.click(addButton);
