@@ -16,6 +16,12 @@ export async function getPlaylistItem(nth: number) {
   return items[nth];
 }
 
+export async function playPlaylistItem(nth: number) {
+  const item = await getPlaylistItem(nth);
+  const playButton = within(item).getByRole("button", { name: /play/i });
+  await playButton.click();
+}
+
 export async function reviewPlaylistItem(nth: number) {
   const item = await getPlaylistItem(nth);
   const reviewButton = within(item).getByRole("button", { name: /reviewed/i });

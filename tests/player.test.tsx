@@ -1,61 +1,103 @@
 import React from "react";
-import {
-  render,
-  screen,
-  within,
-  waitFor,
-  fireEvent,
-} from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import App from "@/App";
-import { getPlaylistItem } from "./expects";
+import {
+  expectPlaylistItemToHaveReviews,
+  playPlaylistItem,
+  reviewPlaylistItem,
+} from "./expects";
 
 // Helper to mock the YouTube IFrame API for tests
 function setupYTMock() {
+  let currentVideoId: string;
+  let hasInvokedSimulatingReady = false;
+  let ready: () => void = () => {};
+  const simulateReady = vi.fn().mockImplementation(() => {
+    hasInvokedSimulatingReady = true;
+    ready();
+  });
+  let hasInvokedSimulatingEnd = false;
+  let end: () => void = () => {};
+  const simulateEnd = vi.fn().mockImplementation(() => {
+    hasInvokedSimulatingEnd = true;
+    end();
+  });
+  const playVideo = vi.fn();
+  const pauseVideo = vi.fn();
+  const stopVideo = vi.fn();
+  const loadVideoById = vi.fn((id: string) => {
+    currentVideoId = id;
+  });
   const PlayerState = { ENDED: 0 };
-  const eventsById: Record<string, any> = {};
   (window as any).YT = {
     Player: function (elemId: string, opts: any) {
       const id =
         (opts && opts.videoId) ||
         (elemId && String(elemId).replace(/^player-/, "")) ||
         "unknown";
-      let currentVideo = id;
+      currentVideoId = id;
       const inst: any = {
         _opts: opts,
-        getVideoData: () => ({ video_id: currentVideo }),
-        playVideo: vi.fn(() => {}),
-        pauseVideo: vi.fn(() => {}),
-        stopVideo: vi.fn(() => {}),
-        loadVideoById: vi.fn((vid: string) => {
-          currentVideo = vid;
-          // register events for the newly loaded id so tests can trigger ended
-          if (opts) eventsById[vid] = opts;
-        }),
-        cueVideoById: vi.fn((vid: string) => {
-          currentVideo = vid;
-          if (opts) eventsById[vid] = opts;
-        }),
+        getVideoData: () => ({ video_id: currentVideoId }),
+        playVideo,
+        pauseVideo,
+        stopVideo,
+        loadVideoById,
       };
-      // store events so tests can trigger state changes without peeking at internals
-      if (opts && opts.events) eventsById[id] = opts.events;
-      opts &&
-        opts.events &&
-        opts.events.onReady &&
-        opts.events.onReady({ target: inst });
+      ready = () => {
+        act(() => {
+          opts &&
+            opts.events &&
+            opts.events.onReady &&
+            opts.events.onReady({ target: inst });
+        });
+      };
+      if (hasInvokedSimulatingReady) ready();
+      end = () => {
+        act(() => {
+          opts &&
+            opts.events &&
+            opts.events.onStateChange &&
+            opts.events.onStateChange({
+              data: PlayerState.ENDED,
+              target: inst,
+            });
+        });
+      };
+      if (hasInvokedSimulatingEnd) end();
       return inst;
     },
     PlayerState,
   } as any;
+
+  return {
+    playVideo,
+    pauseVideo,
+    stopVideo,
+    loadVideoById,
+    simulateReady,
+    simulateEnd,
+  };
 }
 
 describe("player and autoplay", () => {
+  let ytMock: ReturnType<typeof setupYTMock>;
+
   beforeEach(() => {
-    setupYTMock();
+    ytMock = setupYTMock();
   });
 
-  it("shows a play button on each item", async () => {
+  afterEach(() => {
+    expect(ytMock.playVideo).not.toHaveBeenCalled();
+    expect(ytMock.pauseVideo).not.toHaveBeenCalled();
+    expect(ytMock.stopVideo).not.toHaveBeenCalled();
+    expect(ytMock.loadVideoById).not.toHaveBeenCalled();
+    ytMock = undefined as any;
+  });
+
+  it("should not load video if player is not ready yet", async () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
@@ -63,20 +105,21 @@ describe("player and autoplay", () => {
     const origFetch = global.fetch;
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ title: "Play Test" }),
+      json: async () => ({ title: "Not Ready Test" }),
     }) as any;
-    await user.type(input, "https://www.youtube.com/watch?v=play111");
+    await user.clear(input);
+    await user.type(input, "https://www.youtube.com/watch?v=notready111");
     await user.click(addButton);
 
-    const item = await getPlaylistItem(0);
-    expect(
-      within(item).getByRole("button", { name: /play/i }),
-    ).toBeInTheDocument();
+    await playPlaylistItem(0);
+
+    expect(ytMock.loadVideoById).not.toHaveBeenCalled();
+    expect(ytMock.playVideo).not.toHaveBeenCalled();
 
     global.fetch = origFetch;
   });
 
-  it("hides iframe if there is no pending reviews", async () => {
+  it("should load video when player becomes ready", async () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
@@ -84,47 +127,51 @@ describe("player and autoplay", () => {
     const origFetch = global.fetch;
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ title: "Hide Test" }),
+      json: async () => ({ title: "Not Ready Test" }),
     }) as any;
+    await user.clear(input);
+    await user.type(input, "https://www.youtube.com/watch?v=waitready111");
+    await user.click(addButton);
 
-    // add a video and mark it reviewed via UI
-    fireEvent.change(input, {
-      target: { value: "https://www.youtube.com/watch?v=hide111" },
-    });
-    fireEvent.click(addButton);
-    const list = await screen.findByRole("list", { name: /playlist/i });
-    const links = within(list).getAllByRole("link");
-    const link = links.find((l) =>
-      (l as HTMLAnchorElement).href.includes("hide111"),
-    );
-    const item = link
-      ? ((link as HTMLElement).closest("li") as HTMLElement)
-      : await within(list).findByRole("listitem");
+    await playPlaylistItem(0);
+    await ytMock.simulateReady();
 
-    // show player by clicking play
-    await user.click(within(item).getByRole("button", { name: /play/i }));
-    const iframe = await screen.findByTestId("player-iframe");
-    const parent = iframe.parentElement as HTMLElement;
-    // player is visible when there is something to review
-    await waitFor(() => expect(parent.style.display).not.toBe("none"));
+    expect(ytMock.loadVideoById).toHaveBeenCalledOnce();
+    expect(ytMock.loadVideoById).toHaveBeenCalledWith("waitready111");
+    expect(ytMock.playVideo).toHaveBeenCalledOnce();
 
-    // mark reviewed via UI
-    await user.click(within(item).getByRole("button", { name: /reviewed/i }));
-
-    // item should show Reviews: 1
-    const after = await within(list).findAllByRole("listitem");
-    const myItem = after.find((it) =>
-      (within(it).getByRole("link") as HTMLAnchorElement).href.includes(
-        "hide111",
-      ),
-    );
-    expect(myItem).toBeDefined();
-    await waitFor(() => expect(myItem!.textContent).toMatch(/Reviews:\s*1/));
-
+    ytMock.loadVideoById.mockClear();
+    ytMock.playVideo.mockClear();
     global.fetch = origFetch;
   });
 
-  it("clicking play shows the player iframe", async () => {
+  it("should load video when there is a pending review persistently", async () => {
+    localStorage.setItem(
+      "watchlist_v1",
+      JSON.stringify({
+        videos: [
+          {
+            id: "persist111",
+            youtubeId: "persist111",
+            title: "Persistent Video",
+            url: "https://www.youtube.com/watch?v=persist111",
+            createdAt: Date.now(),
+            reviewCount: 0,
+            nextReview: Date.now() - 1000, // due for review
+          },
+        ],
+      }),
+    );
+    render(<App />);
+    await ytMock.simulateReady();
+
+    expect(ytMock.loadVideoById).toHaveBeenCalledOnce();
+    expect(ytMock.loadVideoById).toHaveBeenCalledWith("persist111");
+
+    ytMock.loadVideoById.mockClear();
+  });
+
+  it("plays the video when clicking play after player is ready", async () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
@@ -134,18 +181,43 @@ describe("player and autoplay", () => {
       ok: true,
       json: async () => ({ title: "Embed Test" }),
     }) as any;
-
+    await user.clear(input);
     await user.type(input, "https://www.youtube.com/watch?v=embed111");
     await user.click(addButton);
-    const list = await screen.findByRole("list", { name: /playlist/i });
-    const item = await within(list).findByRole("listitem");
-    await user.click(within(item).getByRole("button", { name: /play/i }));
-    const iframe = await screen.findByTestId("player-iframe");
-    expect(iframe).toBeInTheDocument();
-    // iframe is always present; ensure it's visible when play is clicked
-    const parent = iframe.parentElement as HTMLElement;
-    expect(parent.style.display).not.toBe("none");
 
+    await ytMock.simulateReady();
+    expect(ytMock.loadVideoById).toHaveBeenCalledOnce();
+    expect(ytMock.loadVideoById).toHaveBeenCalledWith("embed111");
+    await playPlaylistItem(0);
+    expect(ytMock.playVideo).toHaveBeenCalledOnce();
+
+    ytMock.loadVideoById.mockClear();
+    ytMock.playVideo.mockClear();
+    global.fetch = origFetch;
+  });
+
+  it("stops the player when marking reviewed", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
+    const addButton = screen.getByRole("button", { name: /add/i });
+    const origFetch = global.fetch;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "Hide Test" }),
+    }) as any;
+    await user.clear(input);
+    await user.type(input, "https://www.youtube.com/watch?v=abc");
+    await user.click(addButton);
+    await ytMock.simulateReady();
+    expect(ytMock.loadVideoById).toHaveBeenCalledOnce();
+    expect(ytMock.loadVideoById).toHaveBeenCalledWith("abc");
+
+    await reviewPlaylistItem(0);
+    expect(ytMock.stopVideo).toHaveBeenCalledOnce();
+
+    ytMock.loadVideoById.mockClear();
+    ytMock.stopVideo.mockClear();
     global.fetch = origFetch;
   });
 
@@ -159,34 +231,21 @@ describe("player and autoplay", () => {
       ok: true,
       json: async () => ({ title: "Review Test" }),
     }) as any;
+    await user.clear(input);
+    await user.type(input, "https://www.youtube.com/watch?v=mr111");
+    await user.click(addButton);
+    await expectPlaylistItemToHaveReviews(0, 0);
+    await ytMock.simulateReady();
+    expect(ytMock.loadVideoById).toHaveBeenCalledOnce();
+    expect(ytMock.loadVideoById).toHaveBeenCalledWith("mr111");
 
-    // add one video and mark reviewed via UI
-    fireEvent.change(input, {
-      target: { value: "https://www.youtube.com/watch?v=mr111" },
-    });
-    fireEvent.click(addButton);
-    const list = await screen.findByRole("list", { name: /playlist/i });
-    const links = within(list).getAllByRole("link");
-    const link = links.find((l) =>
-      (l as HTMLAnchorElement).href.includes("mr111"),
-    );
-    const item = link
-      ? ((link as HTMLElement).closest("li") as HTMLElement)
-      : await within(list).findByRole("listitem");
+    await playPlaylistItem(0);
+    expect(ytMock.playVideo).toHaveBeenCalledOnce();
+    await ytMock.simulateEnd();
+    await expectPlaylistItemToHaveReviews(0, 1);
 
-    // mark reviewed via UI
-    await user.click(within(item).getByRole("button", { name: /reviewed/i }));
-
-    // item should show Reviews: 1
-    const after = await within(list).findAllByRole("listitem");
-    const myItem = after.find((it) =>
-      (within(it).getByRole("link") as HTMLAnchorElement).href.includes(
-        "mr111",
-      ),
-    );
-    expect(myItem).toBeDefined();
-    await waitFor(() => expect(myItem!.textContent).toMatch(/Reviews:\s*1/));
-
+    ytMock.loadVideoById.mockClear();
+    ytMock.playVideo.mockClear();
     global.fetch = origFetch;
   });
 
@@ -200,68 +259,26 @@ describe("player and autoplay", () => {
       ok: true,
       json: async () => ({ title: "Auto Next Test" }),
     }) as any;
-
-    // add two videos
+    await user.clear(input);
     await user.type(input, "https://www.youtube.com/watch?v=first111");
     await user.click(addButton);
     await user.clear(input);
     await user.type(input, "https://www.youtube.com/watch?v=second222");
     await user.click(addButton);
+    await ytMock.simulateReady();
+    expect(ytMock.loadVideoById).toHaveBeenCalledTimes(1);
+    expect(ytMock.loadVideoById).toHaveBeenNthCalledWith(1, "first111");
 
-    const list = await screen.findByRole("list", { name: /playlist/i });
-    const links = within(list).getAllByRole("link");
-    const firstLink = links.find((l) =>
-      (l as HTMLAnchorElement).href.includes("first111"),
-    );
-    const firstItem = firstLink
-      ? ((firstLink as HTMLElement).closest("li") as HTMLElement)
-      : (await within(list).findAllByRole("listitem"))[0];
-    // mark first as reviewed via the UI
-    await user.click(
-      within(firstItem).getByRole("button", { name: /reviewed/i }),
-    );
-    await waitFor(() => {
-      const after = within(list).getAllByRole("listitem");
-      const first = after.find((it) =>
-        (within(it).getByRole("link") as HTMLAnchorElement).href.includes(
-          "first111",
-        ),
-      );
-      expect(first).toBeDefined();
-      expect(first!.textContent).toMatch(/Reviews:\s*1/);
-    });
+    await playPlaylistItem(0);
+    expect(ytMock.playVideo).toHaveBeenCalledOnce();
+    await ytMock.simulateEnd();
 
-    // mark second reviewed via UI as well
-    const links2 = within(list).getAllByRole("link");
-    const secondLink = links2.find((l) =>
-      (l as HTMLAnchorElement).href.includes("second222"),
-    );
-    const secondItem = secondLink
-      ? ((secondLink as HTMLElement).closest("li") as HTMLElement)
-      : (await within(list).findAllByRole("listitem"))[1];
-    await user.click(
-      within(secondItem).getByRole("button", { name: /reviewed/i }),
-    );
+    expect(ytMock.loadVideoById).toHaveBeenCalledTimes(2);
+    expect(ytMock.loadVideoById).toHaveBeenNthCalledWith(2, "second222");
+    expect(ytMock.playVideo).toHaveBeenCalledTimes(2);
 
-    // both should now show Reviews: 1
-    await waitFor(() => {
-      const after = within(list).getAllByRole("listitem");
-      const first = after.find((it) =>
-        (within(it).getByRole("link") as HTMLAnchorElement).href.includes(
-          "first111",
-        ),
-      );
-      const second = after.find((it) =>
-        (within(it).getByRole("link") as HTMLAnchorElement).href.includes(
-          "second222",
-        ),
-      );
-      expect(first).toBeDefined();
-      expect(second).toBeDefined();
-      expect(first!.textContent).toMatch(/Reviews:\s*1/);
-      expect(second!.textContent).toMatch(/Reviews:\s*1/);
-    });
-
+    ytMock.loadVideoById.mockClear();
+    ytMock.playVideo.mockClear();
     global.fetch = origFetch;
   });
 });
