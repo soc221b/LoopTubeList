@@ -47,10 +47,19 @@ export function playlistReducer(
   switch (action.type) {
     case "add": {
       const v = action.payload;
+      const nextList = [v, ...state.list];
+      try {
+        console.debug(
+          "PlaylistReducer: add",
+          v.youtubeId,
+          "new length",
+          nextList.length,
+        );
+      } catch {}
       return {
         past: [...state.past, state.list],
         future: [],
-        list: [v, ...state.list],
+        list: nextList,
       };
     }
     case "set": {

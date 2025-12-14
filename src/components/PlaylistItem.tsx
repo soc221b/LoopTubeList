@@ -1,6 +1,7 @@
 import React from "react";
 import { usePlaylistDispatch } from "@/PlaylistContext";
 import { computeNextReview } from "@/App";
+import { stopIfPlaying } from "@/playerController";
 
 type Video = {
   id: string;
@@ -15,31 +16,14 @@ type Video = {
 export default function PlaylistItem({
   v,
   setPlayingId,
-  playersRef,
-  tryCreatePlayer,
 }: {
   v: Video;
   setPlayingId: (id: string | null) => void;
-  playersRef: React.RefObject<Record<string, any>>;
-  tryCreatePlayer: (id: string) => void;
 }) {
   const dispatch = usePlaylistDispatch();
 
   function handlePlay() {
     setPlayingId(v.id);
-    if (v.youtubeId) {
-      const main = playersRef.current?.main;
-      if (main) {
-        try {
-          main.loadVideoById && main.loadVideoById(v.youtubeId);
-          (window as any).__ytPlayers = (window as any).__ytPlayers || {};
-          (window as any).__ytPlayers[v.youtubeId] = main;
-          main.playVideo && main.playVideo();
-        } catch {}
-      } else {
-        tryCreatePlayer(v.youtubeId);
-      }
-    }
   }
 
   function handleReviewed() {
@@ -47,6 +31,14 @@ export default function PlaylistItem({
       type: "reviewed",
       payload: { id: v.id, nextReview: computeNextReview(v.reviewCount + 1) },
     });
+    // stop the player immediately if this item is currently playing
+    // playerController will do nothing if not playing
+    stopIfPlaying(v.id);
+    try {
+      (window as any).__YT_PLAYER__ &&
+        (window as any).__YT_PLAYER__.stopVideo &&
+        (window as any).__YT_PLAYER__.stopVideo();
+    } catch {}
   }
 
   function handleReset() {

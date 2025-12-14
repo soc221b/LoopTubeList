@@ -4,13 +4,9 @@ import PlaylistItem from "./PlaylistItem";
 import { usePlaylist } from "@/PlaylistContext";
 
 export default function Playlist({
-  playersRef,
   setPlayingId,
-  tryCreatePlayer,
 }: {
-  playersRef: React.RefObject<Record<string, any>>;
   setPlayingId: (id: string | null) => void;
-  tryCreatePlayer: (id: string) => void;
 }) {
   const { list } = usePlaylist();
 
@@ -35,13 +31,7 @@ export default function Playlist({
           style={{ listStyle: "none", padding: 0 }}
         >
           {sorted.map((v) => (
-            <PlaylistItem
-              key={v.id}
-              v={v}
-              setPlayingId={setPlayingId}
-              playersRef={playersRef}
-              tryCreatePlayer={tryCreatePlayer}
-            />
+            <PlaylistItem key={v.id} v={v} setPlayingId={setPlayingId} />
           ))}
         </ul>
       )}

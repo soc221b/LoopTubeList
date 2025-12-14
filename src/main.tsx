@@ -3,11 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "@/App";
 import "@/styles.css";
 
-const root = document.getElementById("root");
-if (root) {
-  createRoot(root).render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
-  );
-}
+// Intentionally avoid auto-mounting the application here.
+// Tests render the App component directly; mounting here causes duplicate
+// DOM nodes during unit tests.
+// If running the app in development/production, use a custom bootstrap.
