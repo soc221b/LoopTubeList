@@ -9,9 +9,10 @@ import {
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import App from "@/App";
+import { getPlaylistItem } from "./expects";
 
 // Helper to mock the YouTube IFrame API for tests
-function createYTMock() {
+function setupYTMock() {
   const PlayerState = { ENDED: 0 };
   const eventsById: Record<string, any> = {};
   (window as any).YT = {
@@ -47,15 +48,13 @@ function createYTMock() {
     },
     PlayerState,
   } as any;
-  return {
-    triggerEnded: (id: string) => {
-      const ev = eventsById[id];
-      if (ev && ev.onStateChange) ev.onStateChange({ data: PlayerState.ENDED });
-    },
-  };
 }
 
 describe("player and autoplay", () => {
+  beforeEach(() => {
+    setupYTMock();
+  });
+
   it("shows a play button on each item", async () => {
     const user = userEvent.setup();
     render(<App />);
@@ -66,11 +65,10 @@ describe("player and autoplay", () => {
       ok: true,
       json: async () => ({ title: "Play Test" }),
     }) as any;
-
     await user.type(input, "https://www.youtube.com/watch?v=play111");
     await user.click(addButton);
-    const list = await screen.findByRole("list", { name: /playlist/i });
-    const item = await within(list).findByRole("listitem");
+
+    const item = await getPlaylistItem(0);
     expect(
       within(item).getByRole("button", { name: /play/i }),
     ).toBeInTheDocument();
@@ -102,8 +100,6 @@ describe("player and autoplay", () => {
     const item = link
       ? ((link as HTMLElement).closest("li") as HTMLElement)
       : await within(list).findByRole("listitem");
-
-    const yt = createYTMock();
 
     // show player by clicking play
     await user.click(within(item).getByRole("button", { name: /play/i }));
@@ -204,8 +200,6 @@ describe("player and autoplay", () => {
       ok: true,
       json: async () => ({ title: "Auto Next Test" }),
     }) as any;
-
-    const yt = createYTMock();
 
     // add two videos
     await user.type(input, "https://www.youtube.com/watch?v=first111");

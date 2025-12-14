@@ -8,3 +8,38 @@ export async function expectPlaylistToHaveLength(n: number) {
   const list = await screen.findByRole("list", { name: /playlist/i });
   expect(within(list).queryAllByRole("listitem")).toHaveLength(n);
 }
+
+export async function getPlaylistItem(nth: number) {
+  const list = await screen.findByRole("list", { name: /playlist/i });
+  const items = within(list).getAllByRole("listitem");
+  expect(items.length).toBeGreaterThanOrEqual(nth);
+  return items[nth];
+}
+
+export async function reviewPlaylistItem(nth: number) {
+  const item = await getPlaylistItem(nth);
+  const reviewButton = within(item).getByRole("button", { name: /reviewed/i });
+  await reviewButton.click();
+}
+
+export async function resetPlaylistItem(nth: number) {
+  const item = await getPlaylistItem(nth);
+  const resetButton = within(item).getByRole("button", { name: /reset/i });
+  await resetButton.click();
+}
+
+export async function removePlaylistItem(nth: number) {
+  const item = await getPlaylistItem(nth);
+  const removeButton = within(item).getByRole("button", { name: /remove/i });
+  await removeButton.click();
+}
+
+export async function expectPlaylistItemToHaveReviews(
+  nth: number,
+  reviews: number,
+) {
+  const item = await getPlaylistItem(nth);
+  expect(
+    within(item).getByText(new RegExp(`Reviews:\\s*${reviews}\\b`)),
+  ).toBeInTheDocument();
+}

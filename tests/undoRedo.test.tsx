@@ -3,10 +3,25 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import App from "@/App";
-import { expectPlaylistToHaveLength } from "./expects";
+import {
+  expectPlaylistItemToHaveReviews,
+  expectPlaylistToHaveLength,
+  getPlaylistItem,
+  resetPlaylistItem,
+  reviewPlaylistItem,
+  removePlaylistItem,
+} from "./expects";
+
+async function undo(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole("button", { name: /undo/i }));
+}
+
+async function redo(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole("button", { name: /redo/i }));
+}
 
 describe("undo/redo", () => {
-  it("undoes and redoes adding a video", async () => {
+  it("undoes and redoes adding", async () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
@@ -16,25 +31,14 @@ describe("undo/redo", () => {
       ok: true,
       json: async () => ({ title: "Undo Test" }),
     }) as any;
-
     await user.type(input, "https://www.youtube.com/watch?v=aaa111");
     await user.click(addButton);
-    await within(screen.getByRole("list", { name: /playlist/i })).findByRole(
-      "listitem",
-    );
+    await expectPlaylistToHaveLength(1);
 
-    const list = screen.getByRole("list", { name: /playlist/i });
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
-
-    await user.click(screen.getByRole("button", { name: /undo/i }));
+    await undo(user);
     await expectPlaylistToHaveLength(0);
-
-    // redo -> list should reappear with one item
-    await user.click(screen.getByRole("button", { name: /redo/i }));
-    const listAfterRedo = await screen.findByRole("list", {
-      name: /playlist/i,
-    });
-    expect(within(listAfterRedo).queryAllByRole("listitem")).toHaveLength(1);
+    await redo(user);
+    await expectPlaylistToHaveLength(1);
 
     global.fetch = origFetch;
   });
@@ -49,28 +53,14 @@ describe("undo/redo", () => {
       ok: true,
       json: async () => ({ title: "Review Test" }),
     }) as any;
-
     await user.type(input, "https://www.youtube.com/watch?v=bbb222");
     await user.click(addButton);
-    const list = screen.getByRole("list", { name: /playlist/i });
-    const item = await within(list).findByRole("listitem");
+    await reviewPlaylistItem(0);
 
-    // initial reviews 0
-    expect(within(item).getByText(/Reviews: 0/)).toBeInTheDocument();
-
-    // review once
-    await user.click(within(item).getByRole("button", { name: /reviewed/i }));
-    expect(within(item).getByText(/Reviews: 1/)).toBeInTheDocument();
-
-    // undo the review
-    await user.click(screen.getByRole("button", { name: /undo/i }));
-    const itemAfterUndo = await within(list).findByRole("listitem");
-    expect(within(itemAfterUndo).getByText(/Reviews: 0/)).toBeInTheDocument();
-
-    // redo the review
-    await user.click(screen.getByRole("button", { name: /redo/i }));
-    const itemAfterRedo = await within(list).findByRole("listitem");
-    expect(within(itemAfterRedo).getByText(/Reviews: 1/)).toBeInTheDocument();
+    await undo(user);
+    await expectPlaylistItemToHaveReviews(0, 0);
+    await redo(user);
+    await expectPlaylistItemToHaveReviews(0, 1);
 
     global.fetch = origFetch;
   });
@@ -88,8 +78,9 @@ describe("undo/redo", () => {
 
     await user.type(input, "https://www.youtube.com/watch?v=noreset1");
     await user.click(addButton);
-    const list = await screen.findByRole("list", { name: /playlist/i });
-    const item = await within(list).findByRole("listitem");
+    await expectPlaylistToHaveLength(1);
+
+    const item = await getPlaylistItem(0);
     const resetBtn = within(item).getByRole("button", { name: /reset/i });
     expect(resetBtn).toBeDisabled();
 
@@ -106,31 +97,18 @@ describe("undo/redo", () => {
       ok: true,
       json: async () => ({ title: "Reset Test" }),
     }) as any;
-
     await user.type(input, "https://www.youtube.com/watch?v=ccc333");
     await user.click(addButton);
-    const list = screen.getByRole("list", { name: /playlist/i });
-    const item = await within(list).findByRole("listitem");
+    await expectPlaylistToHaveLength(1);
 
-    // increase reviews twice
-    await user.click(within(item).getByRole("button", { name: /reviewed/i }));
-    await user.click(within(item).getByRole("button", { name: /reviewed/i }));
-    expect(within(item).getByText(/Reviews: 2/)).toBeInTheDocument();
+    await reviewPlaylistItem(0);
+    await reviewPlaylistItem(0);
+    await resetPlaylistItem(0);
 
-    // reset
-    await user.click(within(item).getByRole("button", { name: /reset/i }));
-    const afterReset = await within(list).findByRole("listitem");
-    expect(within(afterReset).getByText(/Reviews: 0/)).toBeInTheDocument();
-
-    // undo reset -> back to 2
-    await user.click(screen.getByRole("button", { name: /undo/i }));
-    const afterUndo = await within(list).findByRole("listitem");
-    expect(within(afterUndo).getByText(/Reviews: 2/)).toBeInTheDocument();
-
-    // redo reset
-    await user.click(screen.getByRole("button", { name: /redo/i }));
-    const afterRedo = await within(list).findByRole("listitem");
-    expect(within(afterRedo).getByText(/Reviews: 0/)).toBeInTheDocument();
+    await undo(user);
+    await expectPlaylistItemToHaveReviews(0, 2);
+    await redo(user);
+    await expectPlaylistItemToHaveReviews(0, 0);
 
     global.fetch = origFetch;
   });
@@ -145,31 +123,15 @@ describe("undo/redo", () => {
       ok: true,
       json: async () => ({ title: "Remove Test" }),
     }) as any;
-
     await user.type(input, "https://www.youtube.com/watch?v=ddd444");
     await user.click(addButton);
-    const list = screen.getByRole("list", { name: /playlist/i });
-    await within(list).findByRole("listitem");
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
+    await expectPlaylistToHaveLength(1);
+    await removePlaylistItem(0);
 
-    // remove
-    await user.click(
-      within(await within(list).findByRole("listitem")).getByRole("button", {
-        name: /remove/i,
-      }),
-    );
+    await undo(user);
+    await expectPlaylistToHaveLength(1);
+    await redo(user);
     await expectPlaylistToHaveLength(0);
-
-    // undo remove -> item back
-    await user.click(screen.getByRole("button", { name: /undo/i }));
-    const listAfterUndo = await screen.findByRole("list", {
-      name: /playlist/i,
-    });
-    expect(within(listAfterUndo).queryAllByRole("listitem")).toHaveLength(1);
-
-    // redo remove
-    await user.click(screen.getByRole("button", { name: /redo/i }));
-    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
 
     global.fetch = origFetch;
   });

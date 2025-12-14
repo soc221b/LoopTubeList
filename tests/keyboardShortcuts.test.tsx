@@ -1,17 +1,15 @@
 import React from "react";
-import { render, screen, within, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { vi } from "vitest";
 import App from "@/App";
 import { expectPlaylistToHaveLength } from "./expects";
 
 describe("keyboard shortcuts", () => {
-  it("undoes adding via Ctrl+Z (Windows/Linux)", async () => {
+  it("undoes adding via Ctrl+Z (Windows)", async () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
-
     const origFetch = global.fetch;
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -20,14 +18,9 @@ describe("keyboard shortcuts", () => {
 
     await user.type(input, "https://www.youtube.com/watch?v=uwin111");
     await user.click(addButton);
-    const list = screen.getByRole("list", { name: /playlist/i });
-    await within(list).findByRole("listitem");
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
-
-    // ensure input is not focused so app-level undo applies
+    await expectPlaylistToHaveLength(1);
     input.blur();
 
-    // Ctrl+Z
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     await expectPlaylistToHaveLength(0);
 
@@ -39,7 +32,6 @@ describe("keyboard shortcuts", () => {
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
-
     const origFetch = global.fetch;
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -48,26 +40,20 @@ describe("keyboard shortcuts", () => {
 
     await user.type(input, "https://www.youtube.com/watch?v=umac111");
     await user.click(addButton);
-    const list = screen.getByRole("list", { name: /playlist/i });
-    await within(list).findByRole("listitem");
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
-
-    // ensure input is not focused so app-level undo applies
+    await expectPlaylistToHaveLength(1);
     input.blur();
 
-    // Meta+Z
     fireEvent.keyDown(window, { key: "z", metaKey: true });
     await expectPlaylistToHaveLength(0);
 
     global.fetch = origFetch;
   });
 
-  it("redoes via Ctrl+Y and Ctrl+Shift+Z (Windows/Linux)", async () => {
+  it("redoes via Ctrl+Y (Windows)", async () => {
     const user = userEvent.setup();
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
-
     const origFetch = global.fetch;
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -76,34 +62,37 @@ describe("keyboard shortcuts", () => {
 
     await user.type(input, "https://www.youtube.com/watch?v=rwin111");
     await user.click(addButton);
-    const list = screen.getByRole("list", { name: /playlist/i });
-    await within(list).findByRole("listitem");
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
-
-    // ensure input is not focused so app-level undo applies
+    await expectPlaylistToHaveLength(1);
     input.blur();
-
-    // undo
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     await expectPlaylistToHaveLength(0);
 
-    // redo via Ctrl+Y
     fireEvent.keyDown(window, { key: "y", ctrlKey: true });
-    const listAfterRedo = await screen.findByRole("list", {
-      name: /playlist/i,
-    });
-    expect(within(listAfterRedo).queryAllByRole("listitem")).toHaveLength(1);
+    await expectPlaylistToHaveLength(1);
 
-    // undo again -> list removed
+    global.fetch = origFetch;
+  });
+
+  it("redoes via Ctrl+Shift+Z (Windows)", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
+    const addButton = screen.getByRole("button", { name: /add/i });
+    const origFetch = global.fetch;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ title: "KB Redo Win" }),
+    }) as any;
+
+    await user.type(input, "https://www.youtube.com/watch?v=rwin111");
+    await user.click(addButton);
+    await expectPlaylistToHaveLength(1);
+    input.blur();
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     await expectPlaylistToHaveLength(0);
 
-    // redo via Ctrl+Shift+Z
     fireEvent.keyDown(window, { key: "z", ctrlKey: true, shiftKey: true });
-    const listAfterRedo2 = await screen.findByRole("list", {
-      name: /playlist/i,
-    });
-    expect(within(listAfterRedo2).queryAllByRole("listitem")).toHaveLength(1);
+    await expectPlaylistToHaveLength(1);
 
     global.fetch = origFetch;
   });
@@ -113,7 +102,6 @@ describe("keyboard shortcuts", () => {
     render(<App />);
     const input = screen.getByLabelText(/YouTube URL/i) as HTMLInputElement;
     const addButton = screen.getByRole("button", { name: /add/i });
-
     const origFetch = global.fetch;
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
@@ -122,20 +110,13 @@ describe("keyboard shortcuts", () => {
 
     await user.type(input, "https://www.youtube.com/watch?v=rmac111");
     await user.click(addButton);
-    const list = screen.getByRole("list", { name: /playlist/i });
-    await within(list).findByRole("listitem");
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
-
-    // ensure input is not focused so app-level undo applies
+    await expectPlaylistToHaveLength(1);
     input.blur();
-
-    // undo
     fireEvent.keyDown(window, { key: "z", metaKey: true });
     await expectPlaylistToHaveLength(0);
 
-    // redo via Meta+Shift+Z
     fireEvent.keyDown(window, { key: "z", metaKey: true, shiftKey: true });
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
+    await expectPlaylistToHaveLength(1);
 
     global.fetch = origFetch;
   });
