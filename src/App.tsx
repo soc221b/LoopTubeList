@@ -76,7 +76,7 @@ function AppInner(): ReactElement {
 
   return (
     <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 1000 }}>
-      <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
+      <main style={{ padding: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <h1 style={{ margin: 0 }}>Loop Tube List</h1>
           <div style={{ marginLeft: 12 }}>
