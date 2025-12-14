@@ -11,17 +11,12 @@ const fetcher = (url: string): Promise<OEmbed> =>
     r.ok ? r.json() : Promise.reject(new Error("not ok")),
   );
 
-export default function AddVideoForm({
-  onAdd,
-  exists,
-}: {
-  onAdd: (payload: {
-    url: string;
-    youtubeId: string;
-    title: string;
-  }) => Promise<{ success: boolean; error?: string }>;
-  exists?: (id: string) => boolean;
-}) {
+import { usePlaylist, usePlaylistDispatch } from "@/PlaylistContext";
+import { computeNextReview } from "@/App";
+
+export default function AddVideoForm() {
+  const { list } = usePlaylist();
+  const dispatch = usePlaylistDispatch();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [url, setUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +52,7 @@ export default function AddVideoForm({
     const key = `oembed:${youtubeId}`;
 
     // if already exists in playlist, avoid fetching
-    if (exists && exists(youtubeId)) {
+    if (list.some((item) => item.youtubeId === youtubeId)) {
       setError("Video already in playlist.");
       inputRef.current?.focus();
       return;
@@ -90,9 +85,20 @@ export default function AddVideoForm({
 
       const title = data && data.title ? data.title : raw;
       setError(null);
-      const res = await onAdd({ url: raw, youtubeId, title });
-      if (!res.success) {
-        setError(res.error || "Failed to add");
+      // dispatch add via context
+      const v = {
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+        youtubeId,
+        title,
+        url: raw,
+        createdAt: Date.now(),
+        reviewCount: 0,
+        nextReview: computeNextReview(0),
+      };
+      try {
+        dispatch({ type: "add", payload: v });
+      } catch (err) {
+        setError("Failed to add");
         inputRef.current?.focus();
         return;
       }
