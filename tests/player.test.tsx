@@ -145,7 +145,7 @@ describe("player and autoplay", () => {
     global.fetch = origFetch;
   });
 
-  it("should load video when there is a pending review persistently", async () => {
+  it("should load video when there is a pending review on initial load", async () => {
     localStorage.setItem(
       "watchlist_v1",
       JSON.stringify({
