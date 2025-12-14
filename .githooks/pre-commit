@@ -1,0 +1,17 @@
+#!/bin/sh
+
+npm test --silent
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Tests failed, aborting commit."
+  exit $status
+fi
+
+npx prettier --check .
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Formatting check failed, aborting commit."
+  exit $status
+fi
+
+exit 0
