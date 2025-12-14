@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, useCallback, type ReactElement } from "react";
+import React, { useEffect, useState, type ReactElement } from "react";
 import { SWRConfig } from "swr";
 
 import Playlist from "@/components/Playlist";
@@ -33,18 +33,23 @@ function AppInner(): ReactElement {
   const dispatch = usePlaylistDispatch();
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  const applyNewList = useCallback((newList: PVideo[]) => {
+  function applyNewList(newList: PVideo[]) {
     dispatch({ type: "set", payload: newList });
-  }, [dispatch]);
+  }
 
-  const undo = useCallback(() => dispatch({ type: "undo" }), [dispatch]);
-  const redo = useCallback(() => dispatch({ type: "redo" }), [dispatch]);
+  function undo() {
+    dispatch({ type: "undo" });
+  }
+
+  function redo() {
+    dispatch({ type: "redo" });
+  }
 
   useEffect(() => {
     save(list);
   }, [list]);
 
-  const sorted = useMemo(() => [...list].sort((a, b) => a.nextReview - b.nextReview), [list]);
+  const sorted = [...list].sort((a, b) => a.nextReview - b.nextReview);
 
   // keyboard shortcuts for undo/redo
   useEffect(() => {
@@ -59,17 +64,17 @@ function AppInner(): ReactElement {
       if (!ctrl) return;
       if (!e.shiftKey && key === "z") {
         e.preventDefault();
-        undo();
+        dispatch({ type: "undo" });
         return;
       }
       if ((e.shiftKey && key === "z") || key === "y") {
         e.preventDefault();
-        redo();
+        dispatch({ type: "redo" });
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [undo, redo, past.length, future.length]);
+  }, [dispatch, past.length, future.length]);
 
   function remove(id: string) {
     dispatch({ type: "remove", payload: { id } });
