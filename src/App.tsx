@@ -10,7 +10,7 @@ import {
   type Video as PVideo,
 } from "@/PlaylistContext";
 
-const STORAGE_KEY = "watchlist_v1";
+const STORAGE_KEY = "loopTubeList";
 const INTERVAL_DAYS = [1, 3, 7, 14, 30];
 
 function daysFromNow(days: number) {
@@ -24,7 +24,7 @@ export function computeNextReview(reviewCount: number) {
 
 function save(list: PVideo[]) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ videos: list }));
   } catch {}
 }
 
