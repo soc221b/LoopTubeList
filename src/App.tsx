@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState, type ReactElement } from "react";
 import { SWRConfig } from "swr";
 
 import AddVideoForm from "@/components/AddVideoForm";
+import Playlist from "@/components/Playlist";
+import VideoPlayer from "@/components/Video";
 
 type Video = {
   id: string;
@@ -267,6 +269,8 @@ export default function App(): ReactElement {
   return (
     <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 1000 }}>
       <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
+        
+
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <h1 style={{ margin: 0 }}>Loop Tube List</h1>
           <div style={{ marginLeft: 12 }}>
@@ -275,138 +279,23 @@ export default function App(): ReactElement {
           </div>
         </div>
 
-        <section>
-          <h2>Playlist ({list.length})</h2>
+        <VideoPlayer playingId={playingId} />
 
-          {/* Player sits on top of the add form */}
-          {/* Always render the iframe but hide it when nothing is playing */}
-          <div style={{ marginBottom: 12, display: playingId ? undefined : "none" }}>
-            <iframe
-              data-testid="player-iframe"
-              id={`player-iframe`}
-              title={`player-iframe`}
-              src={`https://www.youtube.com/embed/?enablejsapi=1`}
-              width={560}
-              height={315}
-              allow="autoplay; encrypted-media"
-            />
-          </div>
+        <Playlist
+          list={list}
+          sorted={sorted}
+          playingId={playingId}
+          playersRef={playersRef}
+          setPlayingId={setPlayingId}
+          tryCreatePlayer={tryCreatePlayer}
+          markReviewed={markReviewed}
+          resetSchedule={resetSchedule}
+          remove={remove}
+          applyNewList={applyNewList}
+          computeNextReview={computeNextReview}
+          anyNeedsReview={anyNeedsReview}
+        />
 
-          {/* Add video form moved inside playlist */}
-          <div style={{ marginBottom: 16 }}>
-            <AddVideoForm
-              exists={(id) => list.some((item) => item.youtubeId === id)}
-              onAdd={async ({ url: rawUrl, youtubeId, title }) => {
-                if (!youtubeId)
-                  return {
-                    success: false,
-                    error: "Only YouTube video URLs are supported.",
-                  };
-                if (list.some((item) => item.youtubeId === youtubeId)) {
-                  return { success: false, error: "Video already in playlist." };
-                }
-                const v: Video = {
-                  id:
-                    Date.now().toString(36) +
-                    Math.random().toString(36).slice(2, 8),
-                  youtubeId,
-                  title,
-                  url: rawUrl,
-                  createdAt: Date.now(),
-                  reviewCount: 0,
-                  nextReview: computeNextReview(0),
-                };
-                applyNewList([v, ...list]);
-                return { success: true };
-              }}
-            />
-          </div>
-
-          {sorted.length === 0 && <p>No videos yet. Add one above.</p>}
-
-          <ul
-            role="list"
-            aria-label="Playlist"
-            style={{ listStyle: "none", padding: 0 }}
-          >
-            {sorted.map((v) => (
-              <li
-                key={v.id}
-                style={{
-                  padding: 12,
-                  borderRadius: 8,
-                  background: "white",
-                  marginBottom: 8,
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 12,
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <a
-                      href={v.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ fontWeight: 600 }}
-                    >
-                      {v.title}
-                    </a>
-                    <div style={{ fontSize: 12, color: "#444" }}>
-                      Reviews: {v.reviewCount} • Next:{" "}
-                      {new Date(v.nextReview).toLocaleString()}
-                    </div>
-                  </div>
-                  <div
-                    style={{ display: "flex", gap: 8, alignItems: "center" }}
-                  >
-                    <button onClick={() => {
-                          setPlayingId(v.id);
-                          if (v.youtubeId) {
-                            const main = playersRef.current.main;
-                            if (main) {
-                              try {
-                                main.loadVideoById && main.loadVideoById(v.youtubeId);
-                                (window as any).__ytPlayers = (window as any).__ytPlayers || {};
-                                (window as any).__ytPlayers[v.youtubeId] = main;
-                                main.playVideo && main.playVideo();
-                              } catch {}
-                            } else {
-                              tryCreatePlayer(v.youtubeId);
-                            }
-                          }
-                        } } aria-label="Play" title="Play">
-                      ▶
-                    </button>
-                    <button
-                      onClick={() => markReviewed(v.id)}
-                      title="Mark reviewed"
-                    >
-                      Reviewed
-                    </button>
-                    <button
-                      onClick={() => resetSchedule(v.id)}
-                      title="Reset schedule"
-                      disabled={v.reviewCount === 0}
-                    >
-                      Reset
-                    </button>
-                    <button
-                      onClick={() => remove(v.id)}
-                      style={{ color: "crimson" }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
       </main>
     </SWRConfig>
   );
