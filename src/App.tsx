@@ -36,13 +36,6 @@ function save(list: Video[]) {
 export default function App(): ReactElement {
   const [list, setList] = useState<Video[]>(() => {
     try {
-      // in test environment, avoid persisting between test runs
-      if (
-        typeof process !== "undefined" &&
-        process.env &&
-        process.env.NODE_ENV === "test"
-      )
-        return [];
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? (JSON.parse(raw) as Video[]) : [];
     } catch {
@@ -269,7 +262,7 @@ export default function App(): ReactElement {
   return (
     <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 1000 }}>
       <main style={{ fontFamily: "system-ui, sans-serif", padding: 24 }}>
-        
+
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <h1 style={{ margin: 0 }}>Loop Tube List</h1>
