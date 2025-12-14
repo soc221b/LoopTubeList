@@ -25,13 +25,14 @@ describe("undo/redo", () => {
     const list = screen.getByRole("list", { name: /playlist/i });
     expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
 
-    // undo
+    // undo -> list should be removed when empty
     await user.click(screen.getByRole("button", { name: /undo/i }));
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
+    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
 
-    // redo
+    // redo -> list should reappear with one item
     await user.click(screen.getByRole("button", { name: /redo/i }));
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
+    const listAfterRedo = await screen.findByRole("list", { name: /playlist/i });
+    expect(within(listAfterRedo).queryAllByRole("listitem")).toHaveLength(1);
 
     global.fetch = origFetch;
   });
@@ -155,15 +156,17 @@ describe("undo/redo", () => {
         name: /remove/i,
       }),
     );
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
+    // after remove the list should be gone
+    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
 
     // undo remove -> item back
     await user.click(screen.getByRole("button", { name: /undo/i }));
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(1);
+    const listAfterUndo = await screen.findByRole("list", { name: /playlist/i });
+    expect(within(listAfterUndo).queryAllByRole("listitem")).toHaveLength(1);
 
     // redo remove
     await user.click(screen.getByRole("button", { name: /redo/i }));
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
+    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
 
     global.fetch = origFetch;
   });

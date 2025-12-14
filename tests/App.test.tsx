@@ -29,8 +29,8 @@ describe("App", () => {
     const addButton = screen.getByRole("button", { name: /add/i });
     await user.type(input, "not-a-url");
     await user.click(addButton);
-    const list = screen.getByRole("list", { name: /playlist/i });
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
+    // playlist ul should not be present when empty
+    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
   });
 
   it("invalid URL format is invalid", async () => {
@@ -60,8 +60,8 @@ describe("App", () => {
     await user.click(addButton);
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(/YouTube/i);
-    const list = screen.getByRole("list", { name: /playlist/i });
-    expect(within(list).queryAllByRole("listitem")).toHaveLength(0);
+    // playlist ul should not be present when empty
+    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
   });
 
   it("resets and focuses the input after adding a valid YouTube video URL", async () => {

@@ -26,13 +26,15 @@ export default function Playlist({
         <AddVideoForm />
       </div>
 
-      {isEmpty && <p>No videos yet. Add one above.</p>}
-
-      <ul role="list" aria-label="Playlist" style={{ listStyle: "none", padding: 0 }}>
-        {sorted.map((v) => (
-          <PlaylistItem key={v.id} v={v} setPlayingId={setPlayingId} playersRef={playersRef} tryCreatePlayer={tryCreatePlayer} />
-        ))}
-      </ul>
+      {isEmpty ? (
+        <p>No videos yet. Add one above.</p>
+      ) : (
+        <ul role="list" aria-label="Playlist" style={{ listStyle: "none", padding: 0 }}>
+          {sorted.map((v) => (
+            <PlaylistItem key={v.id} v={v} setPlayingId={setPlayingId} playersRef={playersRef} tryCreatePlayer={tryCreatePlayer} />
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
