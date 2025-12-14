@@ -3,6 +3,7 @@ import { render, screen, within, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import App from "@/App";
+import { expectPlaylistToHaveLength } from "./expects";
 
 describe("keyboard shortcuts", () => {
   it("undoes adding via Ctrl+Z (Windows/Linux)", async () => {
@@ -29,7 +30,7 @@ describe("keyboard shortcuts", () => {
     // Ctrl+Z
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     // when playlist is empty the <ul> is removed
-    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
+    await expectPlaylistToHaveLength(0);
 
     global.fetch = origFetch;
   });
@@ -58,7 +59,7 @@ describe("keyboard shortcuts", () => {
     // Meta+Z
     fireEvent.keyDown(window, { key: "z", metaKey: true });
     // when playlist is empty the <ul> is removed
-    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
+    await expectPlaylistToHaveLength(0);
 
     global.fetch = origFetch;
   });
@@ -87,7 +88,7 @@ describe("keyboard shortcuts", () => {
     // undo
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
     // when playlist is empty the <ul> is removed
-    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
+    await expectPlaylistToHaveLength(0);
 
     // redo via Ctrl+Y
     fireEvent.keyDown(window, { key: "y", ctrlKey: true });
@@ -96,7 +97,7 @@ describe("keyboard shortcuts", () => {
 
     // undo again -> list removed
     fireEvent.keyDown(window, { key: "z", ctrlKey: true });
-    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
+    await expectPlaylistToHaveLength(0);
 
     // redo via Ctrl+Shift+Z
     fireEvent.keyDown(window, { key: "z", ctrlKey: true, shiftKey: true });
@@ -130,7 +131,7 @@ describe("keyboard shortcuts", () => {
     // undo
     fireEvent.keyDown(window, { key: "z", metaKey: true });
     // when playlist is empty the <ul> is removed
-    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
+    await expectPlaylistToHaveLength(0);
 
     // redo via Meta+Shift+Z
     fireEvent.keyDown(window, { key: "z", metaKey: true, shiftKey: true });

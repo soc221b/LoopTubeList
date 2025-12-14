@@ -3,6 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import App from "@/App";
+import { expectPlaylistToHaveLength } from "./expects";
 
 describe("App", () => {
   it("renders header", () => {
@@ -30,7 +31,7 @@ describe("App", () => {
     await user.type(input, "not-a-url");
     await user.click(addButton);
     // playlist ul should not be present when empty
-    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
+    await expectPlaylistToHaveLength(0);
   });
 
   it("invalid URL format is invalid", async () => {
@@ -61,7 +62,7 @@ describe("App", () => {
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(/YouTube/i);
     // playlist ul should not be present when empty
-    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
+    await expectPlaylistToHaveLength(0);
   });
 
   it("resets and focuses the input after adding a valid YouTube video URL", async () => {

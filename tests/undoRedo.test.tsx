@@ -3,6 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import App from "@/App";
+import { expectPlaylistToHaveLength } from "./expects";
 
 describe("undo/redo", () => {
   it("undoes and redoes adding a video", async () => {
@@ -27,7 +28,7 @@ describe("undo/redo", () => {
 
     // undo -> list should be removed when empty
     await user.click(screen.getByRole("button", { name: /undo/i }));
-    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
+    await expectPlaylistToHaveLength(0);
 
     // redo -> list should reappear with one item
     await user.click(screen.getByRole("button", { name: /redo/i }));
@@ -157,7 +158,7 @@ describe("undo/redo", () => {
       }),
     );
     // after remove the list should be gone
-    expect(screen.queryByRole("list", { name: /playlist/i })).toBeNull();
+    await expectPlaylistToHaveLength(0);
 
     // undo remove -> item back
     await user.click(screen.getByRole("button", { name: /undo/i }));
