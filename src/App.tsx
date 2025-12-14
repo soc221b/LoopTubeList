@@ -1,6 +1,5 @@
 import React, { useEffect, useState, type ReactElement } from "react";
 import { SWRConfig } from "swr";
-
 import Playlist from "@/components/Playlist";
 import VideoPlayer from "@/components/Video";
 import {
@@ -45,9 +44,6 @@ function AppInner(): ReactElement {
     save(list);
   }, [list]);
 
-  const sorted = [...list].sort((a, b) => a.nextReview - b.nextReview);
-
-  // keyboard shortcuts for undo/redo
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const active = (typeof document !== "undefined" &&
