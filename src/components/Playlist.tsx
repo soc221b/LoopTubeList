@@ -60,9 +60,6 @@ export default function Playlist({
             setPlayingId={setPlayingId}
             playersRef={playersRef}
             tryCreatePlayer={tryCreatePlayer}
-            markReviewed={(id) => dispatch({ type: "reviewed", payload: { id, nextReview: computeNextReview(list.find((x) => x.id === id)?.reviewCount! + 1) } })}
-            resetSchedule={(id) => dispatch({ type: "reset", payload: { id, nextReview: computeNextReview(0) } })}
-            remove={(id) => dispatch({ type: "remove", payload: { id } })}
           />
         ))}
       </ul>
