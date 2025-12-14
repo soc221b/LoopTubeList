@@ -27,11 +27,13 @@ export default function Playlist({
 
       {sorted.length === 0 && <p>No videos yet. Add one above.</p>}
 
-      <ul role="list" aria-label="Playlist" style={{ listStyle: "none", padding: 0 }}>
-        {sorted.map((v) => (
-          <PlaylistItem key={v.id} v={v} setPlayingId={setPlayingId} playersRef={playersRef} tryCreatePlayer={tryCreatePlayer} />
-        ))}
-      </ul>
+      {sorted.length > 0 && (
+        <ul role="list" aria-label="Playlist" style={{ listStyle: "none", padding: 0 }}>
+          {sorted.map((v) => (
+            <PlaylistItem key={v.id} v={v} setPlayingId={setPlayingId} playersRef={playersRef} tryCreatePlayer={tryCreatePlayer} />
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
