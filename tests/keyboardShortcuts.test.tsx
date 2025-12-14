@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "@/App";
-import { expectPlaylistToHaveLength } from "./expects";
+import { expectPlaylistToHaveLength } from "./helpers";
 
 describe("keyboard shortcuts", () => {
   it("undoes adding via Ctrl+Z (Windows)", async () => {

@@ -3,7 +3,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
 import App from "@/App";
-import { expectPlaylistToHaveLength } from "./expects";
+import { expectPlaylistToHaveLength } from "./helpers";
 
 describe("App", () => {
   it("renders header", () => {

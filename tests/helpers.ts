@@ -1,4 +1,5 @@
-import { screen, within } from "@testing-library/react";
+import { act, screen, within } from "@testing-library/react";
+import { UserEvent } from "@testing-library/user-event";
 
 export async function expectPlaylistToHaveLength(n: number) {
   if (n === 0) {
@@ -16,28 +17,28 @@ export async function getPlaylistItem(nth: number) {
   return items[nth];
 }
 
-export async function playPlaylistItem(nth: number) {
+export async function playPlaylistItem(user: UserEvent, nth: number) {
   const item = await getPlaylistItem(nth);
   const playButton = within(item).getByRole("button", { name: /play/i });
-  await playButton.click();
+  await user.click(playButton);
 }
 
-export async function reviewPlaylistItem(nth: number) {
+export async function reviewPlaylistItem(user: UserEvent, nth: number) {
   const item = await getPlaylistItem(nth);
   const reviewButton = within(item).getByRole("button", { name: /reviewed/i });
-  await reviewButton.click();
+  await user.click(reviewButton);
 }
 
-export async function resetPlaylistItem(nth: number) {
+export async function resetPlaylistItem(user: UserEvent, nth: number) {
   const item = await getPlaylistItem(nth);
   const resetButton = within(item).getByRole("button", { name: /reset/i });
-  await resetButton.click();
+  await user.click(resetButton);
 }
 
-export async function removePlaylistItem(nth: number) {
+export async function removePlaylistItem(user: UserEvent, nth: number) {
   const item = await getPlaylistItem(nth);
   const removeButton = within(item).getByRole("button", { name: /remove/i });
-  await removeButton.click();
+  await user.click(removeButton);
 }
 
 export async function expectPlaylistItemToHaveReviews(

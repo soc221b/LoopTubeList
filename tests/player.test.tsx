@@ -7,7 +7,7 @@ import {
   expectPlaylistItemToHaveReviews,
   playPlaylistItem,
   reviewPlaylistItem,
-} from "./expects";
+} from "./helpers";
 
 // Helper to mock the YouTube IFrame API for tests
 function setupYTMock() {
@@ -111,7 +111,7 @@ describe("player and autoplay", () => {
     await user.type(input, "https://www.youtube.com/watch?v=notready111");
     await user.click(addButton);
 
-    await playPlaylistItem(0);
+    await playPlaylistItem(user, 0);
 
     expect(ytMock.loadVideoById).not.toHaveBeenCalled();
     expect(ytMock.playVideo).not.toHaveBeenCalled();
@@ -133,7 +133,7 @@ describe("player and autoplay", () => {
     await user.type(input, "https://www.youtube.com/watch?v=waitready111");
     await user.click(addButton);
 
-    await playPlaylistItem(0);
+    await playPlaylistItem(user, 0);
     await ytMock.simulateReady();
 
     expect(ytMock.loadVideoById).toHaveBeenCalledOnce();
@@ -188,7 +188,7 @@ describe("player and autoplay", () => {
     await ytMock.simulateReady();
     expect(ytMock.loadVideoById).toHaveBeenCalledOnce();
     expect(ytMock.loadVideoById).toHaveBeenCalledWith("embed111");
-    await playPlaylistItem(0);
+    await playPlaylistItem(user, 0);
     expect(ytMock.playVideo).toHaveBeenCalledOnce();
 
     ytMock.loadVideoById.mockClear();
@@ -213,7 +213,7 @@ describe("player and autoplay", () => {
     expect(ytMock.loadVideoById).toHaveBeenCalledOnce();
     expect(ytMock.loadVideoById).toHaveBeenCalledWith("abc");
 
-    await reviewPlaylistItem(0);
+    await reviewPlaylistItem(user, 0);
     expect(ytMock.stopVideo).toHaveBeenCalledOnce();
 
     ytMock.loadVideoById.mockClear();
@@ -239,7 +239,7 @@ describe("player and autoplay", () => {
     expect(ytMock.loadVideoById).toHaveBeenCalledOnce();
     expect(ytMock.loadVideoById).toHaveBeenCalledWith("mr111");
 
-    await playPlaylistItem(0);
+    await playPlaylistItem(user, 0);
     expect(ytMock.playVideo).toHaveBeenCalledOnce();
     await ytMock.simulateEnd();
     await expectPlaylistItemToHaveReviews(0, 1);
@@ -269,7 +269,7 @@ describe("player and autoplay", () => {
     expect(ytMock.loadVideoById).toHaveBeenCalledTimes(1);
     expect(ytMock.loadVideoById).toHaveBeenNthCalledWith(1, "first111");
 
-    await playPlaylistItem(0);
+    await playPlaylistItem(user, 0);
     expect(ytMock.playVideo).toHaveBeenCalledOnce();
     await ytMock.simulateEnd();
 

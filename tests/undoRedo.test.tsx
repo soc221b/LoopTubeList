@@ -10,7 +10,7 @@ import {
   resetPlaylistItem,
   reviewPlaylistItem,
   removePlaylistItem,
-} from "./expects";
+} from "./helpers";
 
 async function undo(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole("button", { name: /undo/i }));
@@ -55,7 +55,7 @@ describe("undo/redo", () => {
     }) as any;
     await user.type(input, "https://www.youtube.com/watch?v=bbb222");
     await user.click(addButton);
-    await reviewPlaylistItem(0);
+    await reviewPlaylistItem(user, 0);
 
     await undo(user);
     await expectPlaylistItemToHaveReviews(0, 0);
@@ -101,9 +101,9 @@ describe("undo/redo", () => {
     await user.click(addButton);
     await expectPlaylistToHaveLength(1);
 
-    await reviewPlaylistItem(0);
-    await reviewPlaylistItem(0);
-    await resetPlaylistItem(0);
+    await reviewPlaylistItem(user, 0);
+    await reviewPlaylistItem(user, 0);
+    await resetPlaylistItem(user, 0);
 
     await undo(user);
     await expectPlaylistItemToHaveReviews(0, 2);
@@ -126,7 +126,7 @@ describe("undo/redo", () => {
     await user.type(input, "https://www.youtube.com/watch?v=ddd444");
     await user.click(addButton);
     await expectPlaylistToHaveLength(1);
-    await removePlaylistItem(0);
+    await removePlaylistItem(user, 0);
 
     await undo(user);
     await expectPlaylistToHaveLength(1);
